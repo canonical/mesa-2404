@@ -64,6 +64,7 @@ parts:
     # Userspace drivers
     plugin: nil
     stage-packages:
+      - libgl1-mesa-dri
       - va-driver-all
       - vdpau-driver-all
       - mesa-vulkan-drivers
@@ -117,5 +118,4 @@ slots:
   graphics-core22:
     interface: content
     read:
-      - usr
-      - etc
+      - $SNAP
