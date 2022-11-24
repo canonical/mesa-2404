@@ -1,0 +1,121 @@
+name: mesa-core22-test
+base: core22
+summary: mesa libraries for core22 snaps
+description: |
+  A content snap containing the mesa libraries and drivers for core 22
+compression: lzo
+version: "0.01"
+
+grade: stable
+confinement: strict
+
+architectures:
+  - build-on: amd64
+  - build-on: arm64
+  - build-on: armhf
+  - build-on: ppc64el
+  - build-on: s390x
+  - build-on: riscv64
+
+parts:
+  apis:
+    # This provides the essential APIs
+    #   o libEGL.so.1
+    #   o libva.so.2
+    #   o libvulkan.so.1
+    #
+    plugin: nil
+    stage-packages:
+      - libegl1
+      - libgles2
+      - libvulkan1
+    prime:
+      - usr/lib
+      - usr/share/glvnd
+      - -usr/share/X11
+      - -usr/share/bug
+      - -usr/share/doc
+      - -usr/share/lintian
+      - -usr/share/man
+      - etc/glvnd
+      - -etc/vulkan
+
+  drm:
+    # DRM userspace
+    plugin: nil
+    stage-packages:
+      - libdrm2
+    prime:
+      - usr/lib
+      - -usr/share
+      - -etc
+
+  va:
+    # Video Acceleration API
+    #   o libva.so.2
+    plugin: nil
+    stage-packages:
+      - libva2
+    prime:
+      - usr/lib
+      - -usr/share
+
+  dri:
+    # Userspace drivers
+    plugin: nil
+    stage-packages:
+      - va-driver-all
+      - vdpau-driver-all
+      - mesa-vulkan-drivers
+    prime:
+      - usr/bin
+      - usr/lib
+      - -usr/share/X11
+      - -usr/share/bug
+      - -usr/share/doc
+      - -usr/share/lintian
+      - -usr/share/man
+      - usr/share/vulkan
+      - usr/share/drirc.d
+      - etc/vdpau_wrapper.cfg
+      - -etc/vulkan
+
+  x11:
+    # X11 support (not much cost to having this)
+    plugin: nil
+    stage-packages:
+      - libx11-xcb1
+      - libxau6
+      - libxcb-dri2-0
+      - libxcb-dri3-0
+      - libxcb-present0
+      - libxcb-sync1
+      - libxcb-xfixes0
+      - libxcb1
+      - libxdamage1
+      - libxdmcp6
+      - libxshmfence1
+    prime:
+      - usr/lib
+      - usr/share/X11
+      - -usr/share/doc
+      - -usr/share/lintian
+      - -usr/share/man
+
+  wayland:
+    # Wayland support (not much cost to having this)
+    plugin: nil
+    stage-packages:
+      - libwayland-client0
+      - libwayland-egl1
+      - libwayland-server0
+    prime:
+      - usr/lib
+      - -usr/share/doc
+
+slots:
+  graphics-core22:
+    interface: content
+    read:
+      - usr
+      - etc

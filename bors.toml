@@ -1,0 +1,6 @@
+status = ["Snap"]
+required_approvals = 1
+up_to_date_approvals = true
+delete-merged-branches = true
+update_base_for_deletes = true
+use_squash_merge = true
