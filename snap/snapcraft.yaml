@@ -47,7 +47,7 @@ parts:
       - libdrm2
     prime:
       - usr/lib
-      - -usr/share
+      - -usr/share/doc
       - -etc
 
   va:

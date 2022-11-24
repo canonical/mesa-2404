@@ -12,6 +12,7 @@ usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/vdpau/|Video Decode and Presentation|???
 ||
 usr/share/drirc.d|app-specific workarounds|layout to /usr/share/drirc.d
 usr/share/glvnd/egl_vendor.d|contains the Mesa ICD|Add to __EGL_VENDOR_LIBRARY_DIRS
+usr/share/libdrm|Needed by mesa on AMD GPUs|Layout to /usr/share/libdrm
 usr/share/vulkan|Vulkan ICDs etc|??? maybe: layout to /usr/share/vulkan
 usr/share/X11|X11 locales etc|layout to /usr/share/X11
 ||
