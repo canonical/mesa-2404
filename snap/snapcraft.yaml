@@ -22,7 +22,7 @@ package-repositories:
     url: http://archive.ubuntu.com/ubuntu/
     suites: [jammy]
     components: [main, universe]
-    architectures: [amd64, i386]
+    architectures: [i386]
     key-id: F6ECB3762474EDA9D21B7022871920D1991BC93C
     key-server: keyserver.ubuntu.com
 
@@ -32,12 +32,14 @@ parts:
     #   o libEGL.so.1
     #   o libva.so.2
     #   o libvulkan.so.1
+    #   o libGLX.so.0
     #
     plugin: nil
     stage-packages:
       - libegl1
       - libgles2
       - libvulkan1
+      - libglx0
     prime:
       - usr/lib
       - usr/share/glvnd
@@ -78,6 +80,7 @@ parts:
       - va-driver-all
       - vdpau-driver-all
       - mesa-vulkan-drivers
+      - libglx-mesa0
     prime:
       - usr/bin
       - usr/lib
@@ -95,6 +98,7 @@ parts:
     # X11 support (not much cost to having this)
     plugin: nil
     stage-packages:
+      - libva-x11-2
       - libx11-xcb1
       - libxau6
       - libxcb-dri2-0
@@ -129,6 +133,7 @@ parts:
       #   o libEGL.so.1
       #   o libva.so.2
       #   o libvulkan.so.1
+      #   o libGLX.so.0
       #
       plugin: nil
       stage-packages:
@@ -136,6 +141,7 @@ parts:
           - libegl1:i386
           - libgles2:i386
           - libvulkan1:i386
+          - libglx0:i386
       override-prime: |
         if [ `arch` = "x86_64" ]; then craftctl default; fi
       prime:
@@ -185,6 +191,7 @@ parts:
         - va-driver-all:i386
         - vdpau-driver-all:i386
         - mesa-vulkan-drivers:i386
+        - libglx-mesa0:i386
     override-prime: |
       if [ `arch` = "x86_64" ]; then craftctl default; fi
     prime:
@@ -205,6 +212,7 @@ parts:
     plugin: nil
     stage-packages:
       - on amd64:
+        - libva-x11-2:i386
         - libx11-xcb1:i386
         - libxau6:i386
         - libxcb-dri2-0:i386
