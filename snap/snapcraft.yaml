@@ -250,5 +250,7 @@ parts:
 slots:
   graphics-core22:
     interface: content
-    read:
-      - $SNAP
+    source:
+      read:
+        - $SNAP/etc
+        - $SNAP/usr
