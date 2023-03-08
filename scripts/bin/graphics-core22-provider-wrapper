@@ -1,7 +1,12 @@
 #!/bin/bash
 set -euo pipefail
 
-ARCH_TRIPLET="$(arch)-linux-gnu"
+if [ "$SNAP_ARCH" == "armhf" ]; then
+  ARCH_TRIPLET="arm-linux-gnueabihf"
+else
+  ARCH_TRIPLET="$(arch)-linux-gnu"
+fi
+
 SELF="$( cd -- "$(dirname "$0")/.." ; pwd -P )"
 
 # VDPAU_DRIVER_PATH only supports a single path, rely on LD_LIBRARY_PATH instead
