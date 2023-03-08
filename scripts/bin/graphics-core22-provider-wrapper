@@ -4,10 +4,10 @@ set -euo pipefail
 ARCH_TRIPLET="$(arch)-linux-gnu"
 SELF="$( cd -- "$(dirname "$0")/.." ; pwd -P )"
 
-LD_LIBRARY_PATH=${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}${SELF}/lib/:${SELF}/lib/${ARCH_TRIPLET}
+# VDPAU_DRIVER_PATH only supports a single path, rely on LD_LIBRARY_PATH instead
+LD_LIBRARY_PATH=${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}${SELF}/lib/:${SELF}/lib/${ARCH_TRIPLET}:${SELF}/lib/${ARCH_TRIPLET}/vdpau
 LIBGL_DRIVERS_PATH=${LIBGL_DRIVERS_PATH:+$LIBGL_DRIVERS_PATH:}${SELF}/lib/${ARCH_TRIPLET}/dri/
 LIBVA_DRIVERS_PATH=${LIBVA_DRIVERS_PATH:+$LIBVA_DRIVERS_PATH:}${SELF}/lib/${ARCH_TRIPLET}/dri/
-VDPAU_DRIVER_PATH=${VDPAU_DRIVER_PATH:+$VDPAU_DRIVER_PATH:}${SELF}/lib/${ARCH_TRIPLET}/vdpau/
 __EGL_VENDOR_LIBRARY_DIRS=${__EGL_VENDOR_LIBRARY_DIRS:+$__EGL_VENDOR_LIBRARY_DIRS:}${SELF}/share/glvnd/egl_vendor.d
 __EGL_EXTERNAL_PLATFORM_CONFIG_DIRS=${__EGL_EXTERNAL_PLATFORM_CONFIG_DIRS:+$__EGL_EXTERNAL_PLATFORM_CONFIG_DIRS:}${SELF}/share/egl/egl_external_platform.d
 
@@ -15,18 +15,17 @@ if [ -d "/var/lib/snapd/lib/glvnd/egl_vendor.d" ]; then
   __EGL_VENDOR_LIBRARY_DIRS=/var/lib/snapd/lib/glvnd/egl_vendor.d:${__EGL_VENDOR_LIBRARY_DIRS}
 fi
 
-if [ -f "/var/lib/snapd/lib/gl/vdpau/libvdpau_nvidia.so" ]; then
-  VDPAU_DRIVER_PATH=${VDPAU_DRIVER_PATH}:/var/lib/snapd/lib/gl/vdpau
+if [ -d "/var/lib/snapd/lib/gl/vdpau" ]; then
+  LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/var/lib/snapd/lib/gl/vdpau
 fi
 
-if [ -f "/var/lib/snapd/lib/gl32/vdpau/libvdpau_nvidia.so" ]; then
-  VDPAU_DRIVER_PATH=${VDPAU_DRIVER_PATH}:/var/lib/snapd/lib/gl32/vdpau
+if [ -d "/var/lib/snapd/lib/gl32/vdpau" ]; then
+  LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/var/lib/snapd/lib/gl32/vdpau
 fi
 
 export LD_LIBRARY_PATH
 export LIBGL_DRIVERS_PATH
 export LIBVA_DRIVERS_PATH
-export VDPAU_DRIVER_PATH
 export __EGL_VENDOR_LIBRARY_DIRS
 export __EGL_EXTERNAL_PLATFORM_CONFIG_DIRS
 
