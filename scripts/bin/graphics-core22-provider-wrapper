@@ -17,6 +17,9 @@ __EGL_VENDOR_LIBRARY_DIRS=${__EGL_VENDOR_LIBRARY_DIRS:+$__EGL_VENDOR_LIBRARY_DIR
 __EGL_EXTERNAL_PLATFORM_CONFIG_DIRS=${__EGL_EXTERNAL_PLATFORM_CONFIG_DIRS:+$__EGL_EXTERNAL_PLATFORM_CONFIG_DIRS:}${SELF}/share/egl/egl_external_platform.d
 
 if [ -d "/var/lib/snapd/lib/glvnd/egl_vendor.d" ]; then
+  # This needs to be prepended, as glvnd goes depth-first on these
+  # TODO maybe collect the JSONs into a separate location so their ordering matters,
+  #  and not the dir order
   __EGL_VENDOR_LIBRARY_DIRS=/var/lib/snapd/lib/glvnd/egl_vendor.d:${__EGL_VENDOR_LIBRARY_DIRS}
 fi
 
