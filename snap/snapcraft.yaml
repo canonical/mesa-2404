@@ -1,4 +1,4 @@
-name: mesa-core22-test
+name: mesa-core22
 base: core22
 summary: mesa libraries for core22 snaps
 description: |
