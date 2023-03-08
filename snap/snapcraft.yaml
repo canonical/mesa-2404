@@ -76,6 +76,7 @@ parts:
       - libgl1-mesa-dri
       - va-driver-all
       - vdpau-driver-all
+      - libvdpau-va-gl1
       - mesa-vulkan-drivers
       - libglx-mesa0
     prime:
