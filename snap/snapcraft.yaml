@@ -43,13 +43,6 @@ parts:
     prime:
       - usr/lib
       - usr/share/glvnd
-      - -usr/share/X11
-      - -usr/share/bug
-      - -usr/share/doc
-      - -usr/share/lintian
-      - -usr/share/man
-      - etc/glvnd
-      - -etc/vulkan
 
   drm:
     # DRM userspace
@@ -60,8 +53,6 @@ parts:
       - libdrm2
     prime:
       - usr/lib
-      - -usr/share/doc
-      - -etc
 
   va:
     # Video Acceleration API
@@ -72,7 +63,6 @@ parts:
       - libva2
     prime:
       - usr/lib
-      - -usr/share
 
   dri:
     # Userspace drivers
@@ -85,17 +75,9 @@ parts:
       - mesa-vulkan-drivers
       - libglx-mesa0
     prime:
-      - usr/bin
       - usr/lib
-      - -usr/share/X11
-      - -usr/share/bug
-      - -usr/share/doc
-      - -usr/share/lintian
-      - -usr/share/man
       - usr/share/vulkan
       - usr/share/drirc.d
-      - etc/vdpau_wrapper.cfg
-      - -etc/vulkan
 
   x11:
     # X11 support (not much cost to having this)
@@ -117,9 +99,6 @@ parts:
     prime:
       - usr/lib
       - usr/share/X11
-      - -usr/share/doc
-      - -usr/share/lintian
-      - -usr/share/man
 
   wayland:
     # Wayland support (not much cost to having this)
@@ -131,7 +110,6 @@ parts:
       - libwayland-server0
     prime:
       - usr/lib
-      - -usr/share/doc
 
   apis-i386:
       # This provides the essential APIs
@@ -141,25 +119,18 @@ parts:
       #   o libGLX.so.0
       #
     after: [i386-repo]  # because LP#2009278
-      plugin: nil
-      stage-packages:
-        - on amd64:
-          - libegl1:i386
-          - libgles2:i386
-          - libvulkan1:i386
-          - libglx0:i386
-      override-prime: |
-        if [ `arch` = "x86_64" ]; then craftctl default; fi
-      prime:
-        - usr/lib
-        - usr/share/glvnd
-        - -usr/share/X11
-        - -usr/share/bug
-        - -usr/share/doc
-        - -usr/share/lintian
-        - -usr/share/man
-        - etc/glvnd
-        - -etc/vulkan
+    plugin: nil
+    stage-packages:
+      - on amd64:
+        - libegl1:i386
+        - libgles2:i386
+        - libvulkan1:i386
+        - libglx0:i386
+    override-prime: |
+      if [ `arch` = "x86_64" ]; then craftctl default; fi
+    prime:
+      - usr/lib
+      - usr/share/glvnd
 
   drm-i386:
     # DRM userspace
@@ -173,8 +144,6 @@ parts:
       if [ `arch` = "x86_64" ]; then craftctl default; fi
     prime:
       - usr/lib
-      - -usr/share/doc
-      - -etc
 
   va-i386:
     # Video Acceleration API
@@ -188,7 +157,6 @@ parts:
       if [ `arch` = "x86_64" ]; then craftctl default; fi
     prime:
       - usr/lib
-      - -usr/share
 
   dri-i386:
     # Userspace drivers
@@ -204,17 +172,9 @@ parts:
     override-prime: |
       if [ `arch` = "x86_64" ]; then craftctl default; fi
     prime:
-      - usr/bin
       - usr/lib
-      - -usr/share/X11
-      - -usr/share/bug
-      - -usr/share/doc
-      - -usr/share/lintian
-      - -usr/share/man
       - usr/share/vulkan
       - usr/share/drirc.d
-      - etc/vdpau_wrapper.cfg
-      - -etc/vulkan
 
   x11-i386:
     # X11 support (not much cost to having this)
@@ -239,9 +199,6 @@ parts:
     prime:
       - usr/lib
       - usr/share/X11
-      - -usr/share/doc
-      - -usr/share/lintian
-      - -usr/share/man
 
   wayland-i386:
     # Wayland support (not much cost to having this)
@@ -256,12 +213,11 @@ parts:
       if [ `arch` = "x86_64" ]; then craftctl default; fi
     prime:
       - usr/lib
-      - -usr/share/doc
 
 slots:
   graphics-core22:
     interface: content
     source:
       read:
-        - $SNAP/etc
-        - $SNAP/usr
+        - $SNAP/usr/lib
+        - $SNAP/usr/share
