@@ -113,8 +113,10 @@ parts:
       - libwayland-client0
       - libwayland-egl1
       - libwayland-server0
+      - libnvidia-egl-wayland1
     prime:
       - usr/lib
+      - usr/share/egl/egl_external_platform.d
 
   apis-i386:
       # This provides the essential APIs
@@ -214,10 +216,12 @@ parts:
         - libwayland-client0:i386
         - libwayland-egl1:i386
         - libwayland-server0:i386
+        - libnvidia-egl-wayland1:i386
     override-prime: |
       if [ `arch` = "x86_64" ]; then craftctl default; fi
     prime:
       - usr/lib
+      - usr/share/egl/egl_external_platform.d
 
 slots:
   graphics-core22:
