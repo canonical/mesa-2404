@@ -18,6 +18,10 @@ architectures:
   - build-on: riscv64
 
 parts:
+  scripts:
+    plugin: dump
+    source: scripts
+
   i386-repo:
     plugin: nil
     override-pull: |
@@ -219,5 +223,11 @@ slots:
     interface: content
     source:
       read:
+        # Required at the top-level by graphics-core22
+        - $SNAP/bin
+        - $SNAP/usr/share/drirc.d
+        - $SNAP/usr/share/libdrm
+
+        # Internal, pointed at by the above wrapper
         - $SNAP/usr/lib
         - $SNAP/usr/share
