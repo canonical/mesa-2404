@@ -55,8 +55,10 @@ parts:
     plugin: nil
     stage-packages:
       - libdrm2
+      - libdrm-common
     prime:
       - usr/lib
+      - usr/share/libdrm
 
   va:
     # Video Acceleration API
@@ -147,10 +149,12 @@ parts:
     stage-packages:
       - on amd64:
         - libdrm2:i386
+        - libdrm-common
     override-prime: |
       if [ `arch` = "x86_64" ]; then craftctl default; fi
     prime:
       - usr/lib
+      - usr/share/libdrm
 
   va-i386:
     # Video Acceleration API
