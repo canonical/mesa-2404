@@ -19,6 +19,8 @@ for arch in ${ARCH_TRIPLETS[@]}; do
 done
 __EGL_VENDOR_LIBRARY_DIRS=${__EGL_VENDOR_LIBRARY_DIRS:+$__EGL_VENDOR_LIBRARY_DIRS:}${SELF}/share/glvnd/egl_vendor.d
 __EGL_EXTERNAL_PLATFORM_CONFIG_DIRS=${__EGL_EXTERNAL_PLATFORM_CONFIG_DIRS:+$__EGL_EXTERNAL_PLATFORM_CONFIG_DIRS:}${SELF}/share/egl/egl_external_platform.d
+VK_LAYER_PATH=${VK_LAYER_PATH:+$VK_LAYER_PATH:}${SELF}/share/vulkan/implicit_layer.d/:${SELF}/share/vulkan/explicit_layer.d/
+XDG_DATA_DIRS=${XDG_DATA_DIRS:+$XDG_DATA_DIRS:}${SELF}/share
 
 if [ -d "/var/lib/snapd/lib/glvnd/egl_vendor.d" ]; then
   # This needs to be prepended, as glvnd goes depth-first on these
@@ -40,5 +42,7 @@ export LIBGL_DRIVERS_PATH
 export LIBVA_DRIVERS_PATH
 export __EGL_VENDOR_LIBRARY_DIRS
 export __EGL_EXTERNAL_PLATFORM_CONFIG_DIRS
+export VK_LAYER_PATH
+export XDG_DATA_DIRS
 
 exec "$@"
