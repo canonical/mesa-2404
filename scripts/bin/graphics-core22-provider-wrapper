@@ -1,15 +1,16 @@
 #!/bin/bash
 set -euo pipefail
 
+SELF="$( cd -- "$(dirname "$0")/.." ; pwd -P )"
+
 if [ "$SNAP_ARCH" == "amd64" ]; then
   ARCH_TRIPLETS=( "x86_64-linux-gnu" "i386-linux-gnu" )
+  GCONV_PATH=${GCONV_PATH:+$GCONV_PATH:}${SELF}/lib/i386-linux-gnu/gconv
 elif [ "$SNAP_ARCH" == "armhf" ]; then
   ARCH_TRIPLETS=( "arm-linux-gnueabihf" )
 else
   ARCH_TRIPLETS=( "$(arch)-linux-gnu" )
 fi
-
-SELF="$( cd -- "$(dirname "$0")/.." ; pwd -P )"
 
 # VDPAU_DRIVER_PATH only supports a single path, rely on LD_LIBRARY_PATH instead
 for arch in ${ARCH_TRIPLETS[@]}; do
@@ -44,5 +45,6 @@ export __EGL_VENDOR_LIBRARY_DIRS
 export __EGL_EXTERNAL_PLATFORM_CONFIG_DIRS
 export VK_LAYER_PATH
 export XDG_DATA_DIRS
+[ -z ${GCONV_PATH+x} ] || export GCONV_PATH
 
 exec "$@"
