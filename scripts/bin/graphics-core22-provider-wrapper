@@ -1,18 +1,22 @@
 #!/bin/bash
 set -euo pipefail
 
-if [ "$SNAP_ARCH" == "armhf" ]; then
-  ARCH_TRIPLET="arm-linux-gnueabihf"
+if [ "$SNAP_ARCH" == "amd64" ]; then
+  ARCH_TRIPLETS=( "x86_64-linux-gnu" "i386-linux-gnu" )
+elif [ "$SNAP_ARCH" == "armhf" ]; then
+  ARCH_TRIPLETS=( "arm-linux-gnueabihf" )
 else
-  ARCH_TRIPLET="$(arch)-linux-gnu"
+  ARCH_TRIPLETS=( "$(arch)-linux-gnu" )
 fi
 
 SELF="$( cd -- "$(dirname "$0")/.." ; pwd -P )"
 
 # VDPAU_DRIVER_PATH only supports a single path, rely on LD_LIBRARY_PATH instead
-LD_LIBRARY_PATH=${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}${SELF}/lib/:${SELF}/lib/${ARCH_TRIPLET}:${SELF}/lib/${ARCH_TRIPLET}/vdpau
-LIBGL_DRIVERS_PATH=${LIBGL_DRIVERS_PATH:+$LIBGL_DRIVERS_PATH:}${SELF}/lib/${ARCH_TRIPLET}/dri/
-LIBVA_DRIVERS_PATH=${LIBVA_DRIVERS_PATH:+$LIBVA_DRIVERS_PATH:}${SELF}/lib/${ARCH_TRIPLET}/dri/
+for arch in ${ARCH_TRIPLETS[@]}; do
+  LD_LIBRARY_PATH=${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}${SELF}/lib/${arch}:${SELF}/lib/${arch}/vdpau
+  LIBGL_DRIVERS_PATH=${LIBGL_DRIVERS_PATH:+$LIBGL_DRIVERS_PATH:}${SELF}/lib/${arch}/dri/
+  LIBVA_DRIVERS_PATH=${LIBVA_DRIVERS_PATH:+$LIBVA_DRIVERS_PATH:}${SELF}/lib/${arch}/dri/
+done
 __EGL_VENDOR_LIBRARY_DIRS=${__EGL_VENDOR_LIBRARY_DIRS:+$__EGL_VENDOR_LIBRARY_DIRS:}${SELF}/share/glvnd/egl_vendor.d
 __EGL_EXTERNAL_PLATFORM_CONFIG_DIRS=${__EGL_EXTERNAL_PLATFORM_CONFIG_DIRS:+$__EGL_EXTERNAL_PLATFORM_CONFIG_DIRS:}${SELF}/share/egl/egl_external_platform.d
 
