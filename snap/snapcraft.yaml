@@ -238,6 +238,7 @@ slots:
         - $SNAP/bin
         - $SNAP/usr/share/drirc.d
         - $SNAP/usr/share/libdrm
+        - $SNAP/usr/share/X11
 
         # Internal, pointed at by the above wrapper
         - $SNAP/usr/lib
