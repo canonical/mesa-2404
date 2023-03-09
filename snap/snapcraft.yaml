@@ -86,6 +86,9 @@ parts:
       - usr/lib
       - usr/share/vulkan
       - usr/share/drirc.d
+    override-stage: |
+      sed -i 's@/usr/lib/[a-z0-9_-]\+/@@' ${CRAFT_PART_INSTALL}/usr/share/vulkan/*/*.json
+      craftctl default
 
   x11:
     # X11 support (not much cost to having this)
@@ -182,6 +185,11 @@ parts:
         - vdpau-driver-all:i386
         - mesa-vulkan-drivers:i386
         - libglx-mesa0:i386
+    override-stage: |
+      if [ `arch` = "x86_64" ]; then
+        sed -i 's@/usr/lib/[a-z0-9_-]\+/@@' ${CRAFT_PART_INSTALL}/usr/share/vulkan/*/*.json
+      fi
+      craftctl default
     override-prime: |
       if [ `arch` = "x86_64" ]; then craftctl default; fi
     prime:
