@@ -32,6 +32,7 @@ parts:
 
   apis:
     # This provides the essential APIs
+    #   o libGL.so.0
     #   o libEGL.so.1
     #   o libva.so.2
     #   o libvulkan.so.1
@@ -126,6 +127,7 @@ parts:
 
   apis-i386:
       # This provides the essential APIs
+      #   o libGL.so.1
       #   o libEGL.so.1
       #   o libva.so.2
       #   o libvulkan.so.1
