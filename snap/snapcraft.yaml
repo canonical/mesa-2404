@@ -36,7 +36,6 @@ parts:
     #   o libEGL.so.1
     #   o libva.so.2
     #   o libvulkan.so.1
-    #   o libGLX.so.0
     #
     after: [i386-repo]  # because LP#2009278
     plugin: nil
@@ -45,7 +44,6 @@ parts:
       - libegl1
       - libgles2
       - libvulkan1
-      - libglx0
     prime:
       - usr/lib
       - usr/share/glvnd
@@ -93,9 +91,11 @@ parts:
 
   x11:
     # X11 support (not much cost to having this)
+    #   o libGLX.so.0
     after: [i386-repo]  # because LP#2009278
     plugin: nil
     stage-packages:
+      - libglx0
       - libva-x11-2
       - libx11-xcb1
       - libxau6
@@ -131,7 +131,6 @@ parts:
       #   o libEGL.so.1
       #   o libva.so.2
       #   o libvulkan.so.1
-      #   o libGLX.so.0
       #
     after: [i386-repo]  # because LP#2009278
     plugin: nil
@@ -141,7 +140,6 @@ parts:
         - libegl1:i386
         - libgles2:i386
         - libvulkan1:i386
-        - libglx0:i386
     override-prime: |
       if [ `arch` = "x86_64" ]; then craftctl default; fi
     prime:
@@ -201,10 +199,12 @@ parts:
 
   x11-i386:
     # X11 support (not much cost to having this)
+    #   o libGLX.so.0
     after: [i386-repo]  # because LP#2009278
     plugin: nil
     stage-packages:
       - on amd64:
+        - libglx0:i386
         - libva-x11-2:i386
         - libx11-xcb1:i386
         - libxau6:i386
