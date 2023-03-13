@@ -18,10 +18,6 @@ architectures:
   - build-on: riscv64
 
 parts:
-  scripts:
-    plugin: dump
-    source: scripts
-
   i386-repo:
     plugin: nil
     override-pull: |
@@ -238,6 +234,37 @@ parts:
     prime:
       - usr/lib
       - usr/share/egl/egl_external_platform.d
+
+  file-list:
+    after:
+    - apis
+    - drm
+    - dri
+    - va
+    - x11
+    - wayland
+    - apis-i386
+    - drm-i386
+    - dri-i386
+    - va-i386
+    - x11-i386
+    - wayland-i386
+    plugin: nil
+    override-prime: |
+      mkdir -p ${CRAFT_PRIME}/snap
+      (
+        cd ${CRAFT_PART_INSTALL}/../..
+        # All the cruft coming from stage packages, but not actually staged
+        find $( ls -d */install/{etc,usr/{bin,share/{bug,doc,gcc,gdb,lintian,man}}} ) -type f,l | cut -d/ -f3-
+        cd ${CRAFT_PRIME}
+        # Everything that is indeed staged
+        find usr -type f,l
+      ) | sort -u > ${CRAFT_PRIME}/snap/${CRAFT_TARGET_ARCH}.list
+
+  scripts:
+    after: [file-list]
+    plugin: dump
+    source: scripts
 
 slots:
   graphics-core22:
