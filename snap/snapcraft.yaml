@@ -4,7 +4,7 @@ summary: mesa libraries for core22 snaps
 description: |
   A content snap containing the mesa libraries and drivers for core 22
 compression: lzo
-version: "0.01"
+adopt-info: dri
 
 grade: stable
 confinement: strict
@@ -86,6 +86,7 @@ parts:
     override-stage: |
       sed -i 's@/usr/lib/[a-z0-9_-]\+/@@' ${CRAFT_PART_INSTALL}/usr/share/vulkan/*/*.json
       craftctl default
+      craftctl set version=$( apt-cache policy libgl1-mesa-dri | sed -rne 's/^\s+Candidate:\s+([^-]*)-.+$/\1/p' )
 
   x11:
     # X11 support (not much cost to having this)
