@@ -268,8 +268,20 @@ parts:
 
   scripts:
     after: [file-list]
-    plugin: dump
+    plugin: nil
     source: scripts
+    override-build: |
+      set -x
+      SCRIPT=bin/graphics-core22-provider-wrapper
+      ARCH_TRIPLETS=( ${CRAFT_ARCH_TRIPLET} )
+
+      [ ${CRAFT_TARGET_ARCH} == amd64 ] && ARCH_TRIPLETS+=( i386-linux-gnu )
+
+      mkdir -p ${CRAFT_PART_INSTALL}/bin
+      sed "s/@ARCH_TRIPLETS@/${ARCH_TRIPLETS[*]}/" \
+        ${CRAFT_PART_SRC}/${SCRIPT}.in \
+        > ${CRAFT_PART_INSTALL}/${SCRIPT}
+      chmod 555 ${CRAFT_PART_INSTALL}/${SCRIPT}
 
 slots:
   graphics-core22:

@@ -2,14 +2,10 @@
 set -euo pipefail
 
 SELF="$( cd -- "$(dirname "$0")/.." ; pwd -P )"
+ARCH_TRIPLETS=( @ARCH_TRIPLETS@ )
 
 if [ "$SNAP_ARCH" == "amd64" ]; then
-  ARCH_TRIPLETS=( "x86_64-linux-gnu" "i386-linux-gnu" )
   GCONV_PATH=${GCONV_PATH:+$GCONV_PATH:}${SELF}/lib/i386-linux-gnu/gconv
-elif [ "$SNAP_ARCH" == "armhf" ]; then
-  ARCH_TRIPLETS=( "arm-linux-gnueabihf" )
-else
-  ARCH_TRIPLETS=( "$(arch)-linux-gnu" )
 fi
 
 # VDPAU_DRIVER_PATH only supports a single path, rely on LD_LIBRARY_PATH instead
