@@ -23,6 +23,15 @@ __EGL_EXTERNAL_PLATFORM_CONFIG_DIRS=${__EGL_EXTERNAL_PLATFORM_CONFIG_DIRS:+$__EG
 VK_LAYER_PATH=${VK_LAYER_PATH:+$VK_LAYER_PATH:}${SELF}/share/vulkan/implicit_layer.d/:${SELF}/share/vulkan/explicit_layer.d/
 XDG_DATA_DIRS=${XDG_DATA_DIRS:+$XDG_DATA_DIRS:}${SELF}/share
 
+# These are in the default LD_LIBRARY_PATH, but in case the snap dropped it inadvertently
+if [ -d "/var/lib/snapd/lib/gl" ] && [[ ! ${LD_LIBRARY_PATH} =~ (^|:)/var/lib/snapd/lib/gl(:|$) ]]; then
+  LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/var/lib/snapd/lib/gl
+fi
+
+if [ -d "/var/lib/snapd/lib/gl32" ] && [[ ! ${LD_LIBRARY_PATH} =~ (^|:)/var/lib/snapd/lib/gl32(:|$) ]]; then
+  LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/var/lib/snapd/lib/gl32
+fi
+
 if [ -d "/var/lib/snapd/lib/glvnd/egl_vendor.d" ]; then
   # This needs to be prepended, as glvnd goes depth-first on these
   # TODO maybe collect the JSONs into a separate location so their ordering matters,
