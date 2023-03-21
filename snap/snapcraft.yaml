@@ -1,10 +1,10 @@
-name: mesa-core22-test
+name: mesa-core22
 base: core22
 summary: mesa libraries for core22 snaps
 description: |
   A content snap containing the mesa libraries and drivers for core 22
 compression: lzo
-version: "0.01"
+adopt-info: dri
 
 grade: stable
 confinement: strict
@@ -17,87 +17,72 @@ architectures:
   - build-on: s390x
   - build-on: riscv64
 
-package-repositories:
-  - type: apt
-    url: http://archive.ubuntu.com/ubuntu/
-    suites: [jammy]
-    components: [main, universe]
-    architectures: [i386]
-    key-id: F6ECB3762474EDA9D21B7022871920D1991BC93C
-    key-server: keyserver.ubuntu.com
-
 parts:
+  i386-repo:
+    plugin: nil
+    override-pull: |
+      if [ ${CRAFT_TARGET_ARCH} = "amd64" ]; then
+        dpkg --add-architecture i386
+        apt-get update
+      fi
+
   apis:
     # This provides the essential APIs
+    #   o libGL.so.0
     #   o libEGL.so.1
     #   o libva.so.2
     #   o libvulkan.so.1
-    #   o libGLX.so.0
+    #   o libgbm.so.1
     #
+    after: [i386-repo]  # because LP#2009278
     plugin: nil
     stage-packages:
+      - libgl1
       - libegl1
       - libgles2
       - libvulkan1
-      - libglx0
+      - libgbm1
     prime:
       - usr/lib
       - usr/share/glvnd
-      - -usr/share/X11
-      - -usr/share/bug
-      - -usr/share/doc
-      - -usr/share/lintian
-      - -usr/share/man
-      - etc/glvnd
-      - -etc/vulkan
-
-  drm:
-    # DRM userspace
-    #   o libdrm.so.2
-    plugin: nil
-    stage-packages:
-      - libdrm2
-    prime:
-      - usr/lib
-      - -usr/share/doc
-      - -etc
 
   va:
     # Video Acceleration API
     #   o libva.so.2
+    after: [i386-repo]  # because LP#2009278
     plugin: nil
     stage-packages:
       - libva2
     prime:
       - usr/lib
-      - -usr/share
 
   dri:
     # Userspace drivers
+    after: [i386-repo]  # because LP#2009278
     plugin: nil
     stage-packages:
       - libgl1-mesa-dri
       - va-driver-all
       - vdpau-driver-all
+      - libvdpau-va-gl1
       - mesa-vulkan-drivers
       - libglx-mesa0
     prime:
-      - usr/bin
       - usr/lib
-      - -usr/share/X11
-      - -usr/share/bug
-      - -usr/share/doc
-      - -usr/share/lintian
-      - -usr/share/man
       - usr/share/vulkan
       - usr/share/drirc.d
-      - etc/vdpau_wrapper.cfg
-      - -etc/vulkan
+    override-stage: |
+      sed -i 's@/usr/lib/[a-z0-9_-]\+/@@' ${CRAFT_PART_INSTALL}/usr/share/vulkan/*/*.json
+      craftctl default
+      craftctl set version=$( apt-cache policy libgl1-mesa-dri | sed -rne 's/^\s+Candidate:\s+([^-]*)-.+$/\1/p' )
 
   x11:
     # X11 support (not much cost to having this)
+    #   o libGLX.so.0
+    after: [i386-repo]  # because LP#2009278
     plugin: nil
     stage-packages:
+      - libglx0
       - libva-x11-2
       - libx11-xcb1
       - libxau6
@@ -113,65 +98,61 @@ parts:
     prime:
       - usr/lib
       - usr/share/X11
-      - -usr/share/doc
-      - -usr/share/lintian
-      - -usr/share/man
 
   wayland:
     # Wayland support (not much cost to having this)
+    after: [i386-repo]  # because LP#2009278
     plugin: nil
     stage-packages:
       - libwayland-client0
       - libwayland-egl1
       - libwayland-server0
+      - libnvidia-egl-wayland1
     prime:
       - usr/lib
-      - -usr/share/doc
+      - usr/share/egl/egl_external_platform.d
 
   apis-i386:
       # This provides the essential APIs
+      #   o libGL.so.1
       #   o libEGL.so.1
       #   o libva.so.2
       #   o libvulkan.so.1
-      #   o libGLX.so.0
+      #   o libgbm.so.1
       #
-      plugin: nil
-      stage-packages:
-        - on amd64:
-          - libegl1:i386
-          - libgles2:i386
-          - libvulkan1:i386
-          - libglx0:i386
-      override-prime: |
-        if [ `arch` = "x86_64" ]; then craftctl default; fi
-      prime:
-        - usr/lib
-        - usr/share/glvnd
-        - -usr/share/X11
-        - -usr/share/bug
-        - -usr/share/doc
-        - -usr/share/lintian
-        - -usr/share/man
-        - etc/glvnd
-        - -etc/vulkan
-
-  drm-i386:
-    # DRM userspace
-    #   o libdrm.so.2
+    after: [i386-repo]  # because LP#2009278
     plugin: nil
     stage-packages:
       - on amd64:
-        - libdrm2:i386
+        - libgl1:i386
+        - libegl1:i386
+        - libgles2:i386
+        - libvulkan1:i386
+        - libgbm1:i386
     override-prime: |
       if [ `arch` = "x86_64" ]; then craftctl default; fi
     prime:
       - usr/lib
-      - -usr/share/doc
-      - -etc
+      - usr/share/glvnd
+
+  drm-i386:
+    # DRM userspace
+    #   o libdrm.so.2
+    after: [i386-repo]  # because LP#2009278
+    plugin: nil
+    stage-packages:
+      - on amd64:
+        - libdrm2:i386
+        - libdrm-common
+    override-prime: |
+      if [ `arch` = "x86_64" ]; then craftctl default; fi
+    prime:
+      - usr/lib
 
   va-i386:
     # Video Acceleration API
     #   o libva.so.2
+    after: [i386-repo]  # because LP#2009278
     plugin: nil
     stage-packages:
       - on amd64:
@@ -180,10 +161,10 @@ parts:
       if [ `arch` = "x86_64" ]; then craftctl default; fi
     prime:
       - usr/lib
-      - -usr/share
 
   dri-i386:
     # Userspace drivers
+    after: [i386-repo]  # because LP#2009278
     plugin: nil
     stage-packages:
       - on amd64:
@@ -192,26 +173,26 @@ parts:
         - vdpau-driver-all:i386
         - mesa-vulkan-drivers:i386
         - libglx-mesa0:i386
+    override-stage: |
+      if [ `arch` = "x86_64" ]; then
+        sed -i 's@/usr/lib/[a-z0-9_-]\+/@@' ${CRAFT_PART_INSTALL}/usr/share/vulkan/*/*.json
+      fi
+      craftctl default
     override-prime: |
       if [ `arch` = "x86_64" ]; then craftctl default; fi
     prime:
-      - usr/bin
       - usr/lib
-      - -usr/share/X11
-      - -usr/share/bug
-      - -usr/share/doc
-      - -usr/share/lintian
-      - -usr/share/man
       - usr/share/vulkan
       - usr/share/drirc.d
-      - etc/vdpau_wrapper.cfg
-      - -etc/vulkan
 
   x11-i386:
     # X11 support (not much cost to having this)
+    #   o libGLX.so.0
+    after: [i386-repo]  # because LP#2009278
     plugin: nil
     stage-packages:
       - on amd64:
+        - libglx0:i386
         - libva-x11-2:i386
         - libx11-xcb1:i386
         - libxau6:i386
@@ -229,28 +210,75 @@ parts:
     prime:
       - usr/lib
       - usr/share/X11
-      - -usr/share/doc
-      - -usr/share/lintian
-      - -usr/share/man
 
   wayland-i386:
     # Wayland support (not much cost to having this)
+    after: [i386-repo]  # because LP#2009278
     plugin: nil
     stage-packages:
       - on amd64:
         - libwayland-client0:i386
         - libwayland-egl1:i386
         - libwayland-server0:i386
+        - libnvidia-egl-wayland1:i386
     override-prime: |
       if [ `arch` = "x86_64" ]; then craftctl default; fi
     prime:
       - usr/lib
-      - -usr/share/doc
+      - usr/share/egl/egl_external_platform.d
+
+  file-list:
+    after:
+    - apis
+    - dri
+    - va
+    - x11
+    - wayland
+    - apis-i386
+    - drm-i386
+    - dri-i386
+    - va-i386
+    - x11-i386
+    - wayland-i386
+    plugin: nil
+    override-prime: |
+      mkdir -p ${CRAFT_PRIME}/snap
+      (
+        cd ${CRAFT_PART_INSTALL}/../..
+        # All the cruft coming from stage packages, but not actually staged
+        find $( ls -d */install/{etc,usr/{bin,share/{bug,doc,gcc,gdb,lintian,man}}} ) -type f,l | cut -d/ -f3-
+        cd ${CRAFT_PRIME}
+        # Everything that is indeed staged
+        find usr -type f,l
+      ) | sort -u > ${CRAFT_PRIME}/snap/${CRAFT_TARGET_ARCH}.list
+
+  scripts:
+    after: [file-list]
+    plugin: nil
+    source: scripts
+    override-build: |
+      set -x
+      SCRIPT=bin/graphics-core22-provider-wrapper
+      ARCH_TRIPLETS=( ${CRAFT_ARCH_TRIPLET} )
+
+      [ ${CRAFT_TARGET_ARCH} == amd64 ] && ARCH_TRIPLETS+=( i386-linux-gnu )
+
+      mkdir -p ${CRAFT_PART_INSTALL}/bin
+      sed "s/@ARCH_TRIPLETS@/${ARCH_TRIPLETS[*]}/" \
+        ${CRAFT_PART_SRC}/${SCRIPT}.in \
+        > ${CRAFT_PART_INSTALL}/${SCRIPT}
+      chmod 555 ${CRAFT_PART_INSTALL}/${SCRIPT}
 
 slots:
   graphics-core22:
     interface: content
     source:
       read:
-        - $SNAP/etc
-        - $SNAP/usr
+        # Required at the top-level by graphics-core22
+        - $SNAP/bin
+        - $SNAP/usr/share/drirc.d
+        - $SNAP/usr/share/X11
+
+        # Internal, pointed at by the above wrapper
+        - $SNAP/usr/lib
+        - $SNAP/usr/share
