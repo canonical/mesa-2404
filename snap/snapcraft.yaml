@@ -1,8 +1,21 @@
 name: mesa-core22
+license: MIT
 base: core22
-summary: mesa libraries for core22 snaps
+summary: Mesa libraries for core22 snaps
 description: |
-  A content snap containing the mesa libraries and drivers for core 22
+  A content snap containing the mesa libraries and drivers for `base: core22` snaps.
+
+  It supports a broad range of hardware through the Mesa stack as well as Nvidia
+  drivers installed from your distribution through the native SnapD support.
+
+  To make use of this snap in your application, allowing for GPU acceleration on
+  a broader set of hardware without including the drivers in your snap, refer to the
+  documentation below:
+
+  https://mir-server.io/docs/the-graphics-core22-snap-interface
+website: https://github.com/MirServer/mesa-core22
+contact: https://github.com/MirServer/mesa-core22/issues
+
 compression: lzo
 adopt-info: dri
 
