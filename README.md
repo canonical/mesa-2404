@@ -15,6 +15,4 @@ mir-quirks|Mir configuration for driver support|Mir specific
 
 ----
 
-For details of the graphics-core22 content interface see:
-
-[TBD]
+For more information about the `graphics-core22` interface, see: [The graphics-core22 snap interface](https://mir-server.io/docs/the-graphics-core22-snap-interface) documentation.
