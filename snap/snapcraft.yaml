@@ -59,6 +59,18 @@ parts:
       - usr/lib
       - usr/share/glvnd
 
+  drm:
+    # DRM userspace
+    #   o libdrm.so.2
+    after: [i386-repo]  # because LP#2009278
+    plugin: nil
+    stage-packages:
+      - libdrm2
+      - libdrm-common
+    prime:
+      - usr/lib
+      - usr/share/libdrm
+
   va:
     # Video Acceleration API
     #   o libva.so.2
@@ -161,6 +173,7 @@ parts:
       if [ `arch` = "x86_64" ]; then craftctl default; fi
     prime:
       - usr/lib
+      - usr/share/libdrm
 
   va-i386:
     # Video Acceleration API
@@ -243,6 +256,7 @@ parts:
   file-list:
     after:
     - apis
+    - drm
     - dri
     - va
     - x11
@@ -290,6 +304,7 @@ slots:
         # Required at the top-level by graphics-core22
         - $SNAP/bin
         - $SNAP/usr/share/drirc.d
+        - $SNAP/usr/share/libdrm
         - $SNAP/usr/share/X11
 
         # Internal, pointed at by the above wrapper
