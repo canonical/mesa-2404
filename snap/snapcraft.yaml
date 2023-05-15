@@ -67,9 +67,12 @@ parts:
     stage-packages:
       - libdrm2
       - libdrm-common
+    organize:
+      # Expected at /libdrm by the `graphics-core22` interface
+      usr/share/libdrm: libdrm
     prime:
       - usr/lib
-      - usr/share/libdrm
+      - libdrm
 
   va:
     # Video Acceleration API
@@ -92,10 +95,13 @@ parts:
       - libvdpau-va-gl1
       - mesa-vulkan-drivers
       - libglx-mesa0
+    organize:
+      # Expected at /drirc.d by the `graphics-core22` interface
+      usr/share/drirc.d: drirc.d
     prime:
       - usr/lib
       - usr/share/vulkan
-      - usr/share/drirc.d
+      - drirc.d
     override-stage: |
       sed -i 's@/usr/lib/[a-z0-9_-]\+/@@' ${CRAFT_PART_INSTALL}/usr/share/vulkan/*/*.json
       craftctl default
@@ -120,9 +126,12 @@ parts:
       - libxdamage1
       - libxdmcp6
       - libxshmfence1
+    organize:
+      # Expected at /X11 by the `graphics-core22` interface
+      usr/share/X11: X11
     prime:
       - usr/lib
-      - usr/share/X11
+      - X11
 
   wayland:
     # Wayland support (not much cost to having this)
@@ -171,9 +180,12 @@ parts:
         - libdrm-common
     override-prime: |
       if [ `arch` = "x86_64" ]; then craftctl default; fi
+    organize:
+      # Expected at /libdrm by the `graphics-core22` interface
+      usr/share/libdrm: libdrm
     prime:
       - usr/lib
-      - usr/share/libdrm
+      - libdrm
 
   va-i386:
     # Video Acceleration API
@@ -204,12 +216,15 @@ parts:
         sed -i 's@/usr/lib/[a-z0-9_-]\+/@@' ${CRAFT_PART_INSTALL}/usr/share/vulkan/*/*.json
       fi
       craftctl default
+    organize:
+      # Expected at /drirc.d by the `graphics-core22` interface
+      usr/share/drirc.d: drirc.d
     override-prime: |
       if [ `arch` = "x86_64" ]; then craftctl default; fi
     prime:
       - usr/lib
       - usr/share/vulkan
-      - usr/share/drirc.d
+      - drirc.d
 
   x11-i386:
     # X11 support (not much cost to having this)
@@ -231,11 +246,14 @@ parts:
         - libxdamage1:i386
         - libxdmcp6:i386
         - libxshmfence1:i386
+    organize:
+      # Expected at /X11 by the `graphics-core22` interface
+      usr/share/X11: X11
     override-prime: |
       if [ `arch` = "x86_64" ]; then craftctl default; fi
     prime:
       - usr/lib
-      - usr/share/X11
+      - X11
 
   wayland-i386:
     # Wayland support (not much cost to having this)
@@ -277,6 +295,8 @@ parts:
         cd ${CRAFT_PRIME}
         # Everything that is indeed staged
         find usr -type f,l
+        # The re-organized bits
+        find drirc.d libdrm X11 -type f,l | awk '{ print "usr/share/" $0 }'
       ) | sort -u > ${CRAFT_PRIME}/snap/${CRAFT_TARGET_ARCH}.list
 
   scripts:
@@ -299,14 +319,4 @@ parts:
 slots:
   graphics-core22:
     interface: content
-    source:
-      read:
-        # Required at the top-level by graphics-core22
-        - $SNAP/bin
-        - $SNAP/usr/share/drirc.d
-        - $SNAP/usr/share/libdrm
-        - $SNAP/usr/share/X11
-
-        # Internal, pointed at by the above wrapper
-        - $SNAP/usr/lib
-        - $SNAP/usr/share
+    read: [$SNAP]
