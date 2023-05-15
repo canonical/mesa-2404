@@ -28,9 +28,27 @@ jobs:
         fetch-depth: 0  # needed for version determination
 
     - name: Build and publish the snap
+      id: build-snap
       uses: canonical/actions/build-snap@multiarch
       with:
         architecture: ${{ matrix.platform }}
         snapcraft-token: ${{ secrets.SNAPCRAFT_TOKEN }}
         publish: ${{ github.event_name == 'pull_request' && github.repository == github.event.pull_request.head.repo.full_name }}
         publish-channel: edge/pr${{ github.event.number }}
+
+    - name: Test the snap
+      if: ${{ matrix.platform == 'amd64' }}
+      run: |
+        sudo snap install --dangerous ${{ steps.build-snap.outputs.snap-path }}
+        sudo snap install mir-test-tools --channel 22/stable
+        sudo snap connect mir-test-tools:login-session-control
+        sudo snap connect mir-test-tools:graphics-core22 mesa-core22
+
+        sudo adduser $USER video
+        sudo adduser $USER input
+
+        sg video "
+          sg input '
+            mir-test-tools.smoke-test
+          '
+        "
