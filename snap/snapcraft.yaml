@@ -30,15 +30,16 @@ architectures:
   - build-on: s390x
   - build-on: riscv64
 
-parts:
-  i386-repo:
-    plugin: nil
-    override-pull: |
-      if [ ${CRAFT_TARGET_ARCH} = "amd64" ]; then
-        dpkg --add-architecture i386
-        apt-get update
-      fi
+package-repositories:
+  - type: apt
+    url: http://archive.ubuntu.com/ubuntu
+    suites: [jammy]
+    components: [main, universe]
+    architectures: [i386]
+    key-id: F6ECB3762474EDA9D21B7022871920D1991BC93C
+    key-server: keyserver.ubuntu.com
 
+parts:
   apis:
     # This provides the essential APIs
     #   o libGL.so.0
@@ -47,7 +48,6 @@ parts:
     #   o libvulkan.so.1
     #   o libgbm.so.1
     #
-    after: [i386-repo]  # because LP#2009278
     plugin: nil
     stage-packages:
       - libgl1
@@ -62,7 +62,6 @@ parts:
   drm:
     # DRM userspace
     #   o libdrm.so.2
-    after: [i386-repo]  # because LP#2009278
     plugin: nil
     stage-packages:
       - libdrm2
@@ -77,7 +76,6 @@ parts:
   va:
     # Video Acceleration API
     #   o libva.so.2
-    after: [i386-repo]  # because LP#2009278
     plugin: nil
     stage-packages:
       - libva2
@@ -86,7 +84,6 @@ parts:
 
   dri:
     # Userspace drivers
-    after: [i386-repo]  # because LP#2009278
     plugin: nil
     stage-packages:
       - libgl1-mesa-dri
@@ -110,7 +107,6 @@ parts:
   x11:
     # X11 support (not much cost to having this)
     #   o libGLX.so.0
-    after: [i386-repo]  # because LP#2009278
     plugin: nil
     stage-packages:
       - libglx0
@@ -135,7 +131,6 @@ parts:
 
   wayland:
     # Wayland support (not much cost to having this)
-    after: [i386-repo]  # because LP#2009278
     plugin: nil
     stage-packages:
       - libwayland-client0
@@ -154,7 +149,6 @@ parts:
       #   o libvulkan.so.1
       #   o libgbm.so.1
       #
-    after: [i386-repo]  # because LP#2009278
     plugin: nil
     stage-packages:
       - on amd64:
@@ -172,7 +166,6 @@ parts:
   drm-i386:
     # DRM userspace
     #   o libdrm.so.2
-    after: [i386-repo]  # because LP#2009278
     plugin: nil
     stage-packages:
       - on amd64:
@@ -190,7 +183,6 @@ parts:
   va-i386:
     # Video Acceleration API
     #   o libva.so.2
-    after: [i386-repo]  # because LP#2009278
     plugin: nil
     stage-packages:
       - on amd64:
@@ -202,7 +194,6 @@ parts:
 
   dri-i386:
     # Userspace drivers
-    after: [i386-repo]  # because LP#2009278
     plugin: nil
     stage-packages:
       - on amd64:
@@ -229,7 +220,6 @@ parts:
   x11-i386:
     # X11 support (not much cost to having this)
     #   o libGLX.so.0
-    after: [i386-repo]  # because LP#2009278
     plugin: nil
     stage-packages:
       - on amd64:
@@ -257,7 +247,6 @@ parts:
 
   wayland-i386:
     # Wayland support (not much cost to having this)
-    after: [i386-repo]  # because LP#2009278
     plugin: nil
     stage-packages:
       - on amd64:
