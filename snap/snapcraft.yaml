@@ -305,7 +305,7 @@ parts:
         find usr -type f,l
         # The re-organized bits
         find drirc.d libdrm X11 -type f,l | awk '{ print "usr/share/" $0 }'
-      ) | sort -u > ${CRAFT_PRIME}/snap/${CRAFT_TARGET_ARCH}.list
+      ) | sort -u > ${CRAFT_PRIME}/snap/${CRAFT_ARCH_BUILD_FOR}.list
 
   scripts:
     after: [file-list]
@@ -314,9 +314,9 @@ parts:
     override-build: |
       set -x
       SCRIPT=bin/graphics-core24-provider-wrapper
-      ARCH_TRIPLETS=( ${CRAFT_ARCH_TRIPLET} )
+      ARCH_TRIPLETS=( ${CRAFT_ARCH_TRIPLET_BUILD_FOR} )
 
-      [ ${CRAFT_TARGET_ARCH} == amd64 ] && ARCH_TRIPLETS+=( i386-linux-gnu )
+      [ ${CRAFT_ARCH_BUILD_FOR} == amd64 ] && ARCH_TRIPLETS+=( i386-linux-gnu )
 
       mkdir -p ${CRAFT_PART_INSTALL}/bin
       sed "s/@ARCH_TRIPLETS@/${ARCH_TRIPLETS[*]}/" \
