@@ -41,9 +41,9 @@ jobs:
       if: ${{ matrix.platform == 'amd64' }}
       run: |
         sudo snap install --dangerous ${{ steps.build-snap.outputs.snap-path }}
-        sudo snap install mir-test-tools --channel 22/stable
+        sudo snap install mir-test-tools --channel 24/stable
         sudo snap connect mir-test-tools:login-session-control
-        sudo snap connect mir-test-tools:graphics-core22 mesa-core22
+        sudo snap connect mir-test-tools:graphics-core24 mesa-core24
 
         sudo adduser $USER video
         sudo adduser $USER input
