@@ -43,6 +43,8 @@ package-repositories:
     architectures: [i386]
     key-id: AE14CDF62F5C4DAD92B6C90364ADA63DCE906EC1
     key-server: keyserver.ubuntu.com
+  - type: apt
+    ppa: ubuntu-asahi/ubuntu-asahi
 
 parts:
   apis:
