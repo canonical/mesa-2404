@@ -24,12 +24,7 @@ grade: stable
 confinement: strict
 
 platforms:
-  amd64:
   arm64:
-  armhf:
-  ppc64el:
-  s390x:
-  riscv64:
 
 package-repositories:
   - type: apt
@@ -39,6 +34,8 @@ package-repositories:
     architectures: [i386]
     key-id: F6ECB3762474EDA9D21B7022871920D1991BC93C
     key-server: keyserver.ubuntu.com
+  - type: apt
+    ppa: ubuntu-asahi/ubuntu-asahi
 
 parts:
   apis:
