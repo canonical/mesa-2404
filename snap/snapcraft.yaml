@@ -136,6 +136,7 @@ parts:
     plugin: nil
     stage-packages:
       - libwayland-client0
+      - libwayland-cursor0
       - libwayland-egl1
       - libwayland-server0
       - libnvidia-egl-wayland1
@@ -256,6 +257,7 @@ parts:
     stage-packages:
       - on amd64:
         - libwayland-client0:i386
+        - libwayland-cursor0:i386
         - libwayland-egl1:i386
         - libwayland-server0:i386
         - libnvidia-egl-wayland1:i386
