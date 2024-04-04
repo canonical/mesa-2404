@@ -79,6 +79,9 @@ parts:
     plugin: nil
     stage-packages:
       - libva2
+      - libva-drm2
+      - libva-x11-2
+      - libva-wayland2
     prime:
       - usr/lib
 
@@ -110,7 +113,6 @@ parts:
     plugin: nil
     stage-packages:
       - libglx0
-      - libva-x11-2
       - libx11-xcb1
       - libxau6
       - libxcb-dri2-0
@@ -187,6 +189,9 @@ parts:
     stage-packages:
       - on amd64:
         - libva2:i386
+        - libva-drm2:i386
+        - libva-x11-2:i386
+        - libva-wayland2:i386
     override-prime: |
       if [ `arch` = "x86_64" ]; then craftctl default; fi
     prime:
