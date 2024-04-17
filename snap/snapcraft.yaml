@@ -13,8 +13,8 @@ description: |
   documentation below:
 
   https://mir-server.io/docs/the-graphics-core22-snap-interface
-website: https://github.com/MirServer/mesa-core22
-contact: https://github.com/MirServer/mesa-core22/issues
+website: https://github.com/canonical/mesa-core22
+contact: https://github.com/canonical/mesa-core22/issues
 
 compression: lzo
 adopt-info: dri
