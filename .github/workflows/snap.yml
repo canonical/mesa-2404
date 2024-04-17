@@ -43,7 +43,7 @@ jobs:
         sudo snap install --dangerous ${{ steps.build-snap.outputs.snap-path }}
         sudo snap install mir-test-tools --channel 24/stable
         sudo snap connect mir-test-tools:login-session-control
-        sudo snap connect mir-test-tools:graphics-core24 mesa-core24
+        sudo snap connect mir-test-tools:gpu-2404 mesa-2404
 
         sudo adduser $USER video
         sudo adduser $USER input

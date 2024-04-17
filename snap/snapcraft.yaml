@@ -1,4 +1,4 @@
-name: mesa-core24
+name: mesa-2404
 license: MIT
 base: core24
 summary: Mesa libraries for core24 snaps
@@ -12,9 +12,9 @@ description: |
   a broader set of hardware without including the drivers in your snap, refer to the
   documentation below:
 
-  https://mir-server.io/docs/the-graphics-core24-snap-interface
-website: https://github.com/canonical/mesa-core24
-contact: https://github.com/canonical/mesa-core24/issues
+  https://mir-server.io/docs/the-gpu-2404-snap-interface
+website: https://github.com/canonical/mesa-2404
+contact: https://github.com/canonical/mesa-2404/issues
 
 compression: lzo
 adopt-info: dri
@@ -68,7 +68,7 @@ parts:
       - libdrm2
       - libdrm-common
     organize:
-      # Expected at /libdrm by the `graphics-core24` interface
+      # Expected at /libdrm by the `gpu-2404` interface
       usr/share/libdrm: libdrm
     prime:
       - usr/lib
@@ -99,7 +99,7 @@ parts:
       - mesa-vulkan-drivers
       - libglx-mesa0
     organize:
-      # Expected at /drirc.d by the `graphics-core24` interface
+      # Expected at /drirc.d by the `gpu-2404` interface
       usr/share/drirc.d: drirc.d
     prime:
       - usr/lib
@@ -129,7 +129,7 @@ parts:
       - libxdmcp6
       - libxshmfence1
     organize:
-      # Expected at /X11 by the `graphics-core24` interface
+      # Expected at /X11 by the `gpu-2404` interface
       usr/share/X11: X11
     prime:
       - usr/lib
@@ -184,7 +184,7 @@ parts:
     override-prime: |
       if [ `arch` = "x86_64" ]; then craftctl default; fi
     organize:
-      # Expected at /libdrm by the `graphics-core24` interface
+      # Expected at /libdrm by the `gpu-2404` interface
       usr/share/libdrm: libdrm
     prime:
       - usr/lib
@@ -223,7 +223,7 @@ parts:
       fi
       craftctl default
     organize:
-      # Expected at /drirc.d by the `graphics-core24` interface
+      # Expected at /drirc.d by the `gpu-2404` interface
       usr/share/drirc.d: drirc.d
     override-prime: |
       if [ `arch` = "x86_64" ]; then craftctl default; fi
@@ -253,7 +253,7 @@ parts:
         - libxdmcp6:i386
         - libxshmfence1:i386
     organize:
-      # Expected at /X11 by the `graphics-core24` interface
+      # Expected at /X11 by the `gpu-2404` interface
       usr/share/X11: X11
     override-prime: |
       if [ `arch` = "x86_64" ]; then craftctl default; fi
@@ -313,7 +313,7 @@ parts:
     source: scripts
     override-build: |
       set -x
-      SCRIPT=bin/graphics-core24-provider-wrapper
+      SCRIPT=bin/gpu-2404-provider-wrapper
       ARCH_TRIPLETS=( ${CRAFT_ARCH_TRIPLET_BUILD_FOR} )
 
       [ ${CRAFT_ARCH_BUILD_FOR} == amd64 ] && ARCH_TRIPLETS+=( i386-linux-gnu )
@@ -325,6 +325,6 @@ parts:
       chmod 555 ${CRAFT_PART_INSTALL}/${SCRIPT}
 
 slots:
-  graphics-core24:
+  gpu-2404:
     interface: content
     read: [$SNAP]
