@@ -18,6 +18,7 @@ __EGL_VENDOR_LIBRARY_DIRS=${__EGL_VENDOR_LIBRARY_DIRS:+$__EGL_VENDOR_LIBRARY_DIR
 __EGL_EXTERNAL_PLATFORM_CONFIG_DIRS=${__EGL_EXTERNAL_PLATFORM_CONFIG_DIRS:+$__EGL_EXTERNAL_PLATFORM_CONFIG_DIRS:}${SELF}/share/egl/egl_external_platform.d
 VK_LAYER_PATH=${VK_LAYER_PATH:+$VK_LAYER_PATH:}${SELF}/share/vulkan/implicit_layer.d/:${SELF}/share/vulkan/explicit_layer.d/
 XDG_DATA_DIRS=${XDG_DATA_DIRS:+$XDG_DATA_DIRS:}${SELF}/share
+XLOCALEDIR="${SELF}/share/X11/locale"
 
 # These are in the default LD_LIBRARY_PATH, but in case the snap dropped it inadvertently
 if [ -d "/var/lib/snapd/lib/gl" ] && [[ ! ${LD_LIBRARY_PATH} =~ (^|:)/var/lib/snapd/lib/gl(:|$) ]]; then
@@ -55,5 +56,6 @@ export __EGL_EXTERNAL_PLATFORM_CONFIG_DIRS
 export VK_LAYER_PATH
 export XDG_DATA_DIRS
 [ -z ${GCONV_PATH+x} ] || export GCONV_PATH
+export XLOCALEDIR
 
 exec "$@"

@@ -129,8 +129,8 @@ parts:
       - libxdmcp6
       - libxshmfence1
     organize:
-      # Expected at /X11 by the `gpu-2404` interface
-      usr/share/X11: X11
+      # Expected at /X11/XErrorDB by the `gpu-2404` interface
+      usr/share/X11/XErrorDB: X11/XErrorDB
     prime:
       - usr/lib
       - usr/share/doc/*/copyright
