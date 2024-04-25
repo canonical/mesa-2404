@@ -57,6 +57,7 @@ parts:
       - libgbm1
     prime:
       - usr/lib
+      - usr/share/doc/*/copyright
       - usr/share/glvnd
 
   drm:
@@ -71,6 +72,7 @@ parts:
       usr/share/libdrm: libdrm
     prime:
       - usr/lib
+      - usr/share/doc/*/copyright
       - libdrm
 
   va:
@@ -84,6 +86,7 @@ parts:
       - libva-wayland2
     prime:
       - usr/lib
+      - usr/share/doc/*/copyright
 
   dri:
     # Userspace drivers
@@ -100,6 +103,7 @@ parts:
       usr/share/drirc.d: drirc.d
     prime:
       - usr/lib
+      - usr/share/doc/*/copyright
       - usr/share/vulkan
       - drirc.d
     override-stage: |
@@ -129,6 +133,7 @@ parts:
       usr/share/X11: X11
     prime:
       - usr/lib
+      - usr/share/doc/*/copyright
       - X11
 
   wayland:
@@ -142,6 +147,7 @@ parts:
       - libnvidia-egl-wayland1
     prime:
       - usr/lib
+      - usr/share/doc/*/copyright
       - usr/share/egl/egl_external_platform.d
 
   apis-i386:
@@ -164,6 +170,7 @@ parts:
       if [ `arch` = "x86_64" ]; then craftctl default; fi
     prime:
       - usr/lib
+      - usr/share/doc/*/copyright
       - usr/share/glvnd
 
   drm-i386:
@@ -181,6 +188,7 @@ parts:
       usr/share/libdrm: libdrm
     prime:
       - usr/lib
+      - usr/share/doc/*/copyright
       - libdrm
 
   va-i386:
@@ -197,6 +205,7 @@ parts:
       if [ `arch` = "x86_64" ]; then craftctl default; fi
     prime:
       - usr/lib
+      - usr/share/doc/*/copyright
 
   dri-i386:
     # Userspace drivers
@@ -221,6 +230,7 @@ parts:
     prime:
       - usr/lib
       - usr/share/vulkan
+      - usr/share/doc/*/copyright
       - drirc.d
 
   x11-i386:
@@ -249,6 +259,7 @@ parts:
       if [ `arch` = "x86_64" ]; then craftctl default; fi
     prime:
       - usr/lib
+      - usr/share/doc/*/copyright
       - X11
 
   wayland-i386:
@@ -265,6 +276,7 @@ parts:
       if [ `arch` = "x86_64" ]; then craftctl default; fi
     prime:
       - usr/lib
+      - usr/share/doc/*/copyright
       - usr/share/egl/egl_external_platform.d
 
   file-list:
