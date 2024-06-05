@@ -4,10 +4,6 @@ set -euo pipefail
 SELF="$( cd -- "$(dirname "$0")/.." ; pwd -P )/usr"
 ARCH_TRIPLETS=( @ARCH_TRIPLETS@ )
 
-if [ "$SNAP_ARCH" == "amd64" ]; then
-  GCONV_PATH=${GCONV_PATH:+$GCONV_PATH:}${SELF}/lib/i386-linux-gnu/gconv
-fi
-
 # VDPAU_DRIVER_PATH only supports a single path, rely on LD_LIBRARY_PATH instead
 for arch in ${ARCH_TRIPLETS[@]}; do
   LD_LIBRARY_PATH=${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}${SELF}/lib/${arch}:${SELF}/lib/${arch}/vdpau
@@ -59,7 +55,6 @@ export __EGL_VENDOR_LIBRARY_DIRS
 export __EGL_EXTERNAL_PLATFORM_CONFIG_DIRS
 export VK_LAYER_PATH
 export XDG_DATA_DIRS
-[ -z ${GCONV_PATH+x} ] || export GCONV_PATH
 export XLOCALEDIR
 
 exec "$@"
