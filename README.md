@@ -8,7 +8,6 @@ Path|Description|Use
 --|--|--
 bin/gpu-2404-provider-wrapper|Sets up all the environment|Run your application through it
 ||
-drirc.d|App-specific workarounds|Layout to /usr/share/drirc.d
 libdrm|Needed by mesa on AMD GPUs|Layout to /usr/share/libdrm
 X11/XErrorDB|X11 locales etc|Layout to /usr/share/X11/XErrorDB
 ||

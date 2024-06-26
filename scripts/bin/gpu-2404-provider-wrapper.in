@@ -12,6 +12,7 @@ for arch in ${ARCH_TRIPLETS[@]}; do
 done
 __EGL_VENDOR_LIBRARY_DIRS=${__EGL_VENDOR_LIBRARY_DIRS:+$__EGL_VENDOR_LIBRARY_DIRS:}${SELF}/share/glvnd/egl_vendor.d
 __EGL_EXTERNAL_PLATFORM_CONFIG_DIRS=${__EGL_EXTERNAL_PLATFORM_CONFIG_DIRS:+$__EGL_EXTERNAL_PLATFORM_CONFIG_DIRS:}${SELF}/share/egl/egl_external_platform.d
+DRIRC_CONFIGDIR=${SELF}/drirc.d
 VK_LAYER_PATH=${VK_LAYER_PATH:+$VK_LAYER_PATH:}${SELF}/share/vulkan/implicit_layer.d/:${SELF}/share/vulkan/explicit_layer.d/
 XDG_DATA_DIRS=${XDG_DATA_DIRS:+$XDG_DATA_DIRS:}${SELF}/share
 XLOCALEDIR="${SELF}/share/X11/locale"
@@ -53,6 +54,7 @@ if [ "${__NV_PRIME_RENDER_OFFLOAD:-}" != 1 ]; then
 fi
 export __EGL_VENDOR_LIBRARY_DIRS
 export __EGL_EXTERNAL_PLATFORM_CONFIG_DIRS
+export DRIRC_CONFIGDIR
 export VK_LAYER_PATH
 export XDG_DATA_DIRS
 export XLOCALEDIR
