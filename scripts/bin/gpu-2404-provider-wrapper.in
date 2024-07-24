@@ -46,7 +46,7 @@ if [ -d "/var/lib/snapd/lib/gl32/vdpau" ]; then
 fi
 
 if [ -d "/var/lib/snapd/lib/gl/gbm" ]; then
-  GBM_BACKENDS_PATH=/var/lib/snapd/lib/gl/gbm
+  export GBM_BACKENDS_PATH=/var/lib/snapd/lib/gl/gbm
 fi
 
 export LD_LIBRARY_PATH
@@ -59,7 +59,6 @@ fi
 export __EGL_VENDOR_LIBRARY_DIRS
 export __EGL_EXTERNAL_PLATFORM_CONFIG_DIRS
 export DRIRC_CONFIGDIR
-export GBM_BACKENDS_PATH
 export VK_LAYER_PATH
 export XDG_DATA_DIRS
 export XLOCALEDIR

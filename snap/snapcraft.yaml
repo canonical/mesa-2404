@@ -152,6 +152,18 @@ parts:
       - usr/share/doc/*/copyright
       - usr/share/egl/egl_external_platform.d
 
+  gbm:
+    # GBM EGL external platform
+    plugin: nil
+    stage-packages:
+      - to amd64:
+        - libnvidia-egl-gbm1
+      - to arm64:
+        - libnvidia-egl-gbm1
+    prime:
+      - usr/lib
+      - usr/share/egl/egl_external_platform.d
+
   apis-i386:
       # This provides the essential APIs
       #   o libGL.so.1
@@ -286,6 +298,7 @@ parts:
     - apis
     - drm
     - dri
+    - gbm
     - va
     - x11
     - wayland
