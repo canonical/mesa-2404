@@ -45,6 +45,10 @@ if [ -d "/var/lib/snapd/lib/gl32/vdpau" ]; then
   LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/var/lib/snapd/lib/gl32/vdpau
 fi
 
+if [ -d "/var/lib/snapd/lib/gl/gbm" ]; then
+  GBM_BACKENDS_PATH=/var/lib/snapd/lib/gl/gbm
+fi
+
 export LD_LIBRARY_PATH
 export LIBGL_DRIVERS_PATH
 if [ "${__NV_PRIME_RENDER_OFFLOAD:-}" != 1 ]; then
@@ -55,6 +59,7 @@ fi
 export __EGL_VENDOR_LIBRARY_DIRS
 export __EGL_EXTERNAL_PLATFORM_CONFIG_DIRS
 export DRIRC_CONFIGDIR
+export GBM_BACKENDS_PATH
 export VK_LAYER_PATH
 export XDG_DATA_DIRS
 export XLOCALEDIR
