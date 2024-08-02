@@ -13,13 +13,9 @@ jobs:
     timeout-minutes: 45
 
     strategy:
+      fail-fast: false
       matrix:
-        platform:
-        - amd64
-        - armhf
-        - arm64
-        - ppc64el
-        - s390x
+        platform: ${{ fromJSON(github.repository == github.event.pull_request.head.repo.full_name && '["amd64","armhf","arm64","ppc64el","s390x"]' || '["amd64"]') }}
 
     steps:
     - name: Check out code
