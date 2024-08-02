@@ -161,8 +161,8 @@ parts:
       - to arm64:
         - libnvidia-egl-gbm1
     prime:
-      - usr/lib
-      - usr/share/egl/egl_external_platform.d
+      - usr/lib/*
+      - usr/share/egl/egl_external_platform.d/*
 
   apis-i386:
       # This provides the essential APIs
