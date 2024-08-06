@@ -292,7 +292,8 @@ parts:
       - usr/share/doc/*/copyright
       - usr/share/egl/egl_external_platform.d
 
-  file-list:
+  # Work around https://bugs.launchpad.net/snapcraft/+bug/2076115
+  cleanup:
     after:
     - apis
     - drm
@@ -307,6 +308,17 @@ parts:
     - va-i386
     - x11-i386
     - wayland-i386
+    plugin: nil
+    build-snaps:
+    - core24
+    override-prime: |
+      set -eux
+      cd /snap/core24/current
+      find . -type f,l -exec rm -f ${CRAFT_PRIME}/{} \;
+      find ${CRAFT_PRIME} -empty -type d -delete
+
+  file-list:
+    after: [cleanup]
     plugin: nil
     override-prime: |
       mkdir -p ${CRAFT_PRIME}/snap
