@@ -65,6 +65,9 @@ parts:
     stage-packages:
       - libdrm2
       - libdrm-common
+      - libdrm-amdgpu1
+      - libdrm-nouveau2
+      - libdrm-radeon1
     organize:
       # Expected at /libdrm by the `gpu-2404` interface
       usr/share/libdrm: libdrm
