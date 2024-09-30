@@ -149,9 +149,37 @@ parts:
       - usr/lib
       - usr/share/doc/*/copyright
 
+  nvidia-egl-ext-deps:
+    source: https://github.com/NVIDIA/eglexternalplatform.git
+    source-tag: 1.2
+    source-depth: 1
+    plugin: meson
+    build-packages:
+      - meson
+    override-prime: '' # only build headers
+
   nvidia-egl-ext:
     # EGL external platforms
-    plugin: nil
+    after: [nvidia-egl-ext-deps]
+    # TODO: change to pull egl-x11 from the archive once packaged
+    source: https://github.com/NVIDIA/egl-x11.git
+    source-commit: 8aac36c712561ebfecc82af3db15c50cd0d573fb
+    source-depth: 1
+    plugin: meson
+    meson-parameters:
+      - --prefix=/usr
+    build-packages:
+      - meson
+      - pkgconf
+      - libdrm-dev
+      - libgbm-dev
+      - libgl-dev
+      - libegl-dev
+      - libx11-dev
+      - libx11-xcb-dev
+      - libxcb1-dev
+      - libxcb-dri3-dev
+      - libxcb-present-dev
     stage-packages:
       - libnvidia-egl-wayland1
       - to amd64:
