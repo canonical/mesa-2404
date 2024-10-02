@@ -32,12 +32,16 @@ platforms:
   riscv64:
 
 package-repositories:
+  # TODO: This should actually be noble-updates repository, or some other means
+  # of `dpkg-architecture --add i386`, but because of
+  # https://bugs.launchpad.net/snapcraft/+bug/2083013, this is the cleanest
+  # way to achieve the same.
   - type: apt
-    url: http://archive.ubuntu.com/ubuntu
-    suites: [jammy]
-    components: [main, universe]
+    url: https://ppa.launchpadcontent.net/mir-team/stub/ubuntu
+    suites: [noble]
+    components: [main]
     architectures: [i386]
-    key-id: F6ECB3762474EDA9D21B7022871920D1991BC93C
+    key-id: AE14CDF62F5C4DAD92B6C90364ADA63DCE906EC1
     key-server: keyserver.ubuntu.com
 
 parts:
