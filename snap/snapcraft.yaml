@@ -187,7 +187,7 @@ parts:
       - to arm64:
         - libnvidia-egl-gbm1
     prime:
-      - usr/lib
+      - usr/lib/**/*.so.*
       - usr/share/egl/egl_external_platform.d
 
   apis-i386:
