@@ -145,23 +145,50 @@ parts:
       - libwayland-cursor0
       - libwayland-egl1
       - libwayland-server0
-      - libnvidia-egl-wayland1
     prime:
       - usr/lib
       - usr/share/doc/*/copyright
-      - usr/share/egl/egl_external_platform.d
 
-  gbm:
-    # GBM EGL external platform
-    plugin: nil
+  nvidia-egl-ext-deps:
+    source: https://github.com/NVIDIA/eglexternalplatform.git
+    source-tag: 1.2
+    source-depth: 1
+    plugin: meson
+    build-packages:
+      - meson
+    override-prime: '' # only build headers
+
+  nvidia-egl-ext:
+    # EGL external platforms
+    after: [nvidia-egl-ext-deps]
+    # TODO: change to pull egl-x11 from the archive once packaged
+    source: https://github.com/NVIDIA/egl-x11.git
+    source-commit: 8aac36c712561ebfecc82af3db15c50cd0d573fb
+    source-depth: 1
+    plugin: meson
+    meson-parameters:
+      - --prefix=/usr
+    build-packages:
+      - meson
+      - pkgconf
+      - libdrm-dev
+      - libgbm-dev
+      - libgl-dev
+      - libegl-dev
+      - libx11-dev
+      - libx11-xcb-dev
+      - libxcb1-dev
+      - libxcb-dri3-dev
+      - libxcb-present-dev
     stage-packages:
+      - libnvidia-egl-wayland1
       - to amd64:
         - libnvidia-egl-gbm1
       - to arm64:
         - libnvidia-egl-gbm1
     prime:
-      - usr/lib/*
-      - usr/share/egl/egl_external_platform.d/*
+      - usr/lib/**/*.so.*
+      - usr/share/egl/egl_external_platform.d
 
   apis-i386:
       # This provides the essential APIs
@@ -284,13 +311,22 @@ parts:
         - libwayland-cursor0:i386
         - libwayland-egl1:i386
         - libwayland-server0:i386
-        - libnvidia-egl-wayland1:i386
     override-prime: |
       if [ `arch` = "x86_64" ]; then craftctl default; fi
     prime:
       - usr/lib
       - usr/share/doc/*/copyright
-      - usr/share/egl/egl_external_platform.d
+
+  nvidia-egl-ext-i386:
+    # EGL external platforms
+    plugin: nil
+    stage-packages:
+      - on amd64:
+        - libnvidia-egl-wayland1:i386
+    override-prime: |
+      if [ `arch` = "x86_64" ]; then craftctl default; fi
+    prime:
+      - usr/lib
 
   # Work around https://bugs.launchpad.net/snapcraft/+bug/2076115
   cleanup:
@@ -298,13 +334,14 @@ parts:
     - apis
     - drm
     - dri
-    - gbm
+    - nvidia-egl-ext
     - va
     - x11
     - wayland
     - apis-i386
     - drm-i386
     - dri-i386
+    - nvidia-egl-ext-i386
     - va-i386
     - x11-i386
     - wayland-i386
