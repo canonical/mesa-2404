@@ -391,7 +391,30 @@ parts:
         > ${CRAFT_PART_INSTALL}/${SCRIPT}
       chmod 555 ${CRAFT_PART_INSTALL}/${SCRIPT}
 
+  component-monitor:
+    after: [file-list]
+    plugin: rust
+    source: component-monitor
+
+plugs:
+  kernel-gpu-2404:
+    interface: content
+    target: $SNAP/kernel-gpu-2404
+
 slots:
   gpu-2404:
     interface: content
     read: [$SNAP]
+
+environment:
+  COMPONENT_INTERFACE: kernel-gpu-2404
+  COMPONENT_SENTINEL: kernel-gpu-2404-sentinel
+  COMPONENT_SOURCE: ${SNAP}/kernel-gpu-2404
+  COMPONENT_TARGET: ${SNAP_DATA}/kernel-gpu-2404
+
+apps:
+  component-monitor:
+    daemon: simple
+    restart-condition: always
+    restart-delay: 3s
+    command: bin/component-monitor
