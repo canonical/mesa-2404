@@ -1,6 +1,14 @@
 #!/bin/bash
 set -euo pipefail
 
+# The second content element is mounted at "${content_target}-2"
+COMPONENT_PATH="$( cd -- "$(dirname "$0")"/.. ; pwd -P )-2"
+
+# Use the component mangler to bootstrap the environment
+if [ -f ${COMPONENT_PATH}/@COMPONENT_SENTINEL@ ]; then
+  . ${COMPONENT_PATH}/@COMPONENT_MANGLER@
+fi
+
 SELF="$( cd -- "$(dirname "$0")/.." ; pwd -P )/usr"
 ARCH_TRIPLETS=( @ARCH_TRIPLETS@ )
 
@@ -47,14 +55,6 @@ fi
 
 if [ -d "/var/lib/snapd/lib/gl/gbm" ]; then
   export GBM_BACKENDS_PATH=/var/lib/snapd/lib/gl/gbm
-fi
-
-# The second content element is mounted at "${content_target}-2"
-COMPONENT_PATH="$( cd -- "$(dirname "$0")"/.. ; pwd -P )-2"
-
-# Use the component mangler to amend the environment further
-if [ -f ${COMPONENT_PATH}/@COMPONENT_SENTINEL@ ]; then
-  . ${COMPONENT_PATH}/@COMPONENT_MANGLER@
 fi
 
 export LD_LIBRARY_PATH
