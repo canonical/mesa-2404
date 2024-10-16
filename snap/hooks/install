@@ -1,0 +1,12 @@
+#!bin/sh
+set -xeu
+
+mkdir --parents --verbose ${COMPONENT_TARGET}
+
+HOOKS="$( cd -- "$(dirname "$0")" ; pwd -P )"
+
+if snapctl is-connected ${COMPONENT_INTERFACE}; then
+    . ${HOOKS}/connect-plug-${COMPONENT_INTERFACE}
+else
+    . ${HOOKS}/disconnect-plug-${COMPONENT_INTERFACE}
+fi

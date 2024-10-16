@@ -1,0 +1,4 @@
+#!bin/sh
+set -xeu
+
+snapctl start --enable ${SNAP_INSTANCE_NAME}.component-monitor
