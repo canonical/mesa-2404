@@ -389,7 +389,7 @@ parts:
       sed \
         -e "s/@ARCH_TRIPLETS@/${ARCH_TRIPLETS[*]}/" \
         -e "s/@COMPONENT_SENTINEL@/kernel-gpu-2404-sentinel/" \
-        -e "s/@COMPONENT_MANGLER@/bin\/kernel-gpu-2404-provider-mangler/" \
+        -e "s/@COMPONENT_MANGLER@/kernel-gpu-2404-provider-mangler/" \
         ${CRAFT_PART_SRC}/${SCRIPT}.in \
         > ${CRAFT_PART_INSTALL}/${SCRIPT}
       chmod 555 ${CRAFT_PART_INSTALL}/${SCRIPT}
