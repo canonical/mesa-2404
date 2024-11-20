@@ -5,7 +5,6 @@ edition = "2021"
 
 [dependencies]
 clap = { version = "4", default-features = false, features = ["derive", "env", "help", "std", "usage"] }
-exitcode = { version = "1", default-features = false }
 log = { version = "0.4", default-features = false }
 nix = { version = "0.29", default-features = false, features = ["inotify"] }
 signal-hook = { version = "0.3", default-features = false, features = ["iterator"] }

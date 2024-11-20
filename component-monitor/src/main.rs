@@ -15,8 +15,8 @@ struct Cli {
     #[arg(env = "COMPONENT_SOURCE")]
     source: PathBuf,
     /// The sentinel file name
-    #[arg(env = "COMPONENT_SENTINEL", value_parser = clap::builder::NonEmptyStringValueParser::new())]
-    sentinel: String,
+    #[arg(env = "COMPONENT_SENTINEL")]
+    sentinel: PathBuf,
     /// The target path to manage content in
     #[arg(env = "COMPONENT_TARGET")]
     target: PathBuf,
@@ -26,7 +26,7 @@ struct Cli {
 }
 
 /// Remove the sentinel file from target, then clear the target directory
-fn cleanup(target: &PathBuf, sentinel: &String) {
+fn cleanup(target: &PathBuf, sentinel: &PathBuf) {
     info!(target: "files", "cleaning up {target:?}");
     let sentinel_path = target.join(sentinel);
     if sentinel_path.exists() {
@@ -72,7 +72,7 @@ fn cleanup(target: &PathBuf, sentinel: &String) {
 
 /// Check if the sentinel file is current, else clean the target directory and populate again,
 /// sentinel file being last
-fn populate(source: &PathBuf, sentinel: &String, target: &PathBuf) {
+fn populate(source: &PathBuf, sentinel: &PathBuf, target: &PathBuf) {
     info!(target: "files", "populating {target:?} from {source:?} with sentinel {sentinel:?}");
     let sentinel_src = source.join(sentinel);
 
@@ -94,7 +94,7 @@ fn populate(source: &PathBuf, sentinel: &String, target: &PathBuf) {
     };
 
     let sentinel_tgt = target.join(sentinel);
-    if sentinel_data == fs::read(&sentinel_tgt).unwrap_or_default() {
+    if fs::read(&sentinel_tgt).is_ok_and(|content| content == sentinel_data) {
         info!(target: "files", "found current sentinel, skipping");
         return;
     }
@@ -109,7 +109,7 @@ fn populate(source: &PathBuf, sentinel: &String, target: &PathBuf) {
                 if path == source {
                     continue;
                 }
-                if *(relative_path.to_str().unwrap()) == **sentinel {
+                if relative_path == sentinel {
                     continue;
                 }
 
@@ -210,9 +210,8 @@ fn main() {
     );
 
     thread::spawn(move || {
-        for _sig in signals.forever() {
-            std::process::exit(exitcode::OK);
-        }
+        signals.forever().next();
+        std::process::exit(0);
     });
 
     inotify
