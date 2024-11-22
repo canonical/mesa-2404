@@ -34,41 +34,33 @@ fn cleanup(target: &PathBuf, sentinel: &PathBuf) -> Result<()> {
     info!(target: "files", "cleaning up {target:?}");
     let sentinel_path = target.join(sentinel);
     if sentinel_path.exists() {
-        match fs::remove_file(&sentinel_path) {
-            Ok(()) => {
-                debug!(target: "files", "removed sentinel ({0:?})", &sentinel_path)
-            }
-            Err(e) => {
-                warn!(target: "files", "failed to remove {0:?}: {e}", &sentinel_path)
-            }
+        if let Err(err) = fs::remove_file(&sentinel_path) {
+            warn!(target: "files", "failed to remove {0:?}: {err}", &sentinel_path)
+        } else {
+            debug!(target: "files", "removed sentinel ({0:?})", &sentinel_path)
         }
     }
-    for entry in fs::read_dir(target).expect("ERROR: failed to list target directory") {
-        match entry {
-            Ok(e) => {
-                let path = e.path();
-                if path.is_dir() {
-                    match fs::remove_dir_all(&path) {
-                        Ok(()) => {
-                            debug!(target: "files", "removed {0:?} recursively", &path)
-                        }
-                        Err(e) => {
-                            error!(target: "files", "failed to remove {0:?}: {e}", &path)
-                        }
-                    }
-                } else {
-                    match fs::remove_file(&path) {
-                        Ok(()) => {
-                            debug!(target: "files", "removed {0:?}", &path)
-                        }
-                        Err(e) => {
-                            error!(target: "files", "failed to remove {0:?}: {e}", &path)
-                        }
-                    }
-                }
-            }
+    for entry in fs::read_dir(target).context("failed to list target directory")? {
+        let entry = match entry {
+            Ok(e) => e,
             Err(e) => {
                 error!(target: "files", "{e}");
+                continue;
+            }
+        };
+
+        let path = entry.path();
+        if path.is_dir() {
+            if let Err(err) = fs::remove_dir_all(&path) {
+                error!(target: "files", "failed to remove {0:?}: {err}", &path)
+            } else {
+                debug!(target: "files", "removed {0:?} recursively", &path)
+            }
+        } else {
+            if let Err(err) = fs::remove_file(&path) {
+                error!(target: "files", "failed to remove {0:?}: {err}", &path)
+            } else {
+                debug!(target: "files", "removed {0:?}", &path)
             }
         }
     }
@@ -108,51 +100,43 @@ fn populate(source: &PathBuf, sentinel: &PathBuf, target: &PathBuf) -> Result<()
     cleanup(target, sentinel)?;
     info!(target: "files", "copying from {source:?} to {target:?}");
     for entry in WalkDir::new(source) {
-        match entry {
-            Ok(e) => {
-                let path = e.path();
-                let relative_path = path.strip_prefix(source)?;
-                if path == source {
-                    continue;
-                }
-                if relative_path == sentinel {
-                    continue;
-                }
-
-                let target_path = target.join(relative_path);
-                if path.is_dir() {
-                    match fs::create_dir(&target_path) {
-                        Ok(()) => {
-                            debug!(target: "files", "created {0:?}", &target_path)
-                        }
-                        Err(e) => {
-                            error!(target: "files", "failed to create {0:?}: {e}", &target_path)
-                        }
-                    }
-                } else {
-                    match fs::copy(path, &target_path) {
-                        Ok(_) => {
-                            debug!(target: "files", "copied {0:?} to {1:?}", &path, &target_path);
-                        }
-                        Err(e) => {
-                            error!(target: "files", "failed to copy {0:?} to {1:?}: {e}", &path, &target_path);
-                        }
-                    }
-                }
-            }
+        let entry = match entry {
+            Ok(e) => e,
             Err(e) => {
                 error!(target: "files", "{e}");
+                continue;
+            }
+        };
+
+        let path = entry.path();
+        let relative_path = path.strip_prefix(source)?;
+        if path == source {
+            continue;
+        }
+        if relative_path == sentinel {
+            continue;
+        }
+
+        let target_path = target.join(relative_path);
+        if path.is_dir() {
+            if let Err(err) = fs::create_dir(&target_path) {
+                error!(target: "files", "failed to create {0:?}: {err}", &target_path);
+            } else {
+                debug!(target: "files", "created {0:?}", &target_path)
+            }
+        } else {
+            if let Err(err) = fs::copy(path, &target_path) {
+                error!(target: "files", "failed to copy {0:?} to {1:?}: {err}", &path, &target_path);
+            } else {
+                debug!(target: "files", "copied {0:?} to {1:?}", &path, &target_path);
             }
         }
     }
 
-    match fs::copy(&sentinel_src, &sentinel_tgt) {
-        Ok(_) => {
-            debug!(target: "files", "copied sentinel ({0:?} to {0:?})", sentinel_src);
-        }
-        Err(e) => {
-            error!(target: "files", "failed to copy sentinel: {e}");
-        }
+    if let Err(err) = fs::copy(&sentinel_src, &sentinel_tgt) {
+        error!(target: "files", "failed to copy sentinel: {err}");
+    } else {
+        debug!(target: "files", "copied sentinel ({0:?} to {0:?})", sentinel_src);
     }
 
     Ok(())
