@@ -32,9 +32,9 @@ fn cleanup(target: &PathBuf, sentinel_name: &str) -> Result<()> {
     let sentinel_path = target.join(sentinel_name);
     if sentinel_path.exists() {
         if let Err(err) = fs::remove_file(&sentinel_path) {
-            warn!(target: "files", "failed to remove {0:?}: {err}", &sentinel_path)
+            warn!(target: "files", "failed to remove {:?}: {err}", &sentinel_path)
         } else {
-            debug!(target: "files", "removed sentinel ({0:?})", &sentinel_path)
+            debug!(target: "files", "removed sentinel ({:?})", &sentinel_path)
         }
     }
     for entry in fs::read_dir(target).context("failed to list target directory")? {
@@ -49,15 +49,15 @@ fn cleanup(target: &PathBuf, sentinel_name: &str) -> Result<()> {
         let path = entry.path();
         if path.is_dir() {
             if let Err(err) = fs::remove_dir_all(&path) {
-                error!(target: "files", "failed to remove {0:?}: {err}", &path)
+                error!(target: "files", "failed to remove {:?}: {err}", &path)
             } else {
-                debug!(target: "files", "removed {0:?} recursively", &path)
+                debug!(target: "files", "removed {:?} recursively", &path)
             }
         } else {
             if let Err(err) = fs::remove_file(&path) {
-                error!(target: "files", "failed to remove {0:?}: {err}", &path)
+                error!(target: "files", "failed to remove {:?}: {err}", &path)
             } else {
-                debug!(target: "files", "removed {0:?}", &path)
+                debug!(target: "files", "removed {:?}", &path)
             }
         }
     }
@@ -72,13 +72,13 @@ fn populate(source: &PathBuf, sentinel_name: &str, target: &PathBuf) -> Result<(
     let sentinel_src = source.join(sentinel_name);
 
     if !sentinel_src.exists() {
-        info!(target: "files", "sentinel file ({0:?}) not found, skipping", &sentinel_src);
+        info!(target: "files", "sentinel file ({:?}) not found, skipping", &sentinel_src);
         return Ok(());
     }
 
     let sentinel_data = match fs::read(&sentinel_src) {
         Ok(d) if d.trim_ascii() == b"" => {
-            error!(target: "files", "found empty sentinel file ({0:?})", &sentinel_src);
+            error!(target: "files", "found empty sentinel file ({:?})", &sentinel_src);
             return Ok(());
         }
         Ok(d) => d,
@@ -117,15 +117,15 @@ fn populate(source: &PathBuf, sentinel_name: &str, target: &PathBuf) -> Result<(
         let target_path = target.join(relative_path);
         if path.is_dir() {
             if let Err(err) = fs::create_dir(&target_path) {
-                error!(target: "files", "failed to create {0:?}: {err}", &target_path);
+                error!(target: "files", "failed to create {:?}: {err}", &target_path);
             } else {
-                debug!(target: "files", "created {0:?}", &target_path)
+                debug!(target: "files", "created {:?}", &target_path)
             }
         } else {
             if let Err(err) = fs::copy(path, &target_path) {
-                error!(target: "files", "failed to copy {0:?} to {1:?}: {err}", &path, &target_path);
+                error!(target: "files", "failed to copy {:?} to {:?}: {err}", &path, &target_path);
             } else {
-                debug!(target: "files", "copied {0:?} to {1:?}", &path, &target_path);
+                debug!(target: "files", "copied {:?} to {:?}", &path, &target_path);
             }
         }
     }
@@ -133,7 +133,7 @@ fn populate(source: &PathBuf, sentinel_name: &str, target: &PathBuf) -> Result<(
     if let Err(err) = fs::copy(&sentinel_src, &sentinel_tgt) {
         error!(target: "files", "failed to copy sentinel: {err}");
     } else {
-        debug!(target: "files", "copied sentinel ({0:?} to {0:?})", sentinel_src);
+        debug!(target: "files", "copied sentinel ({:?} to {:?})", sentinel_src, sentinel_tgt);
     }
 
     Ok(())
@@ -158,7 +158,7 @@ fn monitor(
         for InotifyEvent { name, mask, .. } in events {
             debug!(
                 target: "inotify",
-                "handling {0:?} event for {1:?}",
+                "handling {:?} event for {:?}",
                 mask,
                 name
             );
@@ -199,7 +199,7 @@ fn main() -> Result<()> {
         .context("Sentinel name could not be read as a string")?;
 
     if !args.target.is_dir() {
-        bail!("Target ({0:?}) is not a directory", args.target);
+        bail!("Target ({:?}) is not a directory", args.target);
     }
 
     thread::spawn(move || {
