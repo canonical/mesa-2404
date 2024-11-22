@@ -1,7 +1,10 @@
 use anyhow::{bail, Context, Result};
 use log::{debug, error, info, warn, LevelFilter};
 use nix::sys::inotify::{AddWatchFlags, InitFlags, Inotify, InotifyEvent};
-use signal_hook::{consts::SIGINT, consts::SIGTERM, iterator::Signals};
+use signal_hook::{
+    consts::{SIGINT, SIGTERM},
+    iterator::Signals,
+};
 use std::{fs, path::PathBuf, thread};
 use systemd_journal_logger::JournalLog;
 use walkdir::WalkDir;
@@ -104,7 +107,7 @@ fn populate(source: &PathBuf, sentinel: &PathBuf, target: &PathBuf) -> Result<()
 
     cleanup(target, sentinel)?;
     info!(target: "files", "copying from {source:?} to {target:?}");
-    for entry in WalkDir::new(&source) {
+    for entry in WalkDir::new(source) {
         match entry {
             Ok(e) => {
                 let path = e.path();
@@ -166,31 +169,24 @@ fn monitor(inotify: &Inotify, args: &Cli) -> Result<()> {
             .read_events()
             .context("Error reading Inotify events")?;
 
-        for event in events {
+        for InotifyEvent { name, mask, .. } in events {
             debug!(
                 target: "inotify",
                 "handling {0:?} event for {1:?}",
-                event.mask,
-                event.name
+                mask,
+                name
             );
-            match event {
-                InotifyEvent {
-                    name: Some(name),
-                    mask,
-                    ..
-                } if *name == *args.sentinel => match mask {
-                    AddWatchFlags::IN_DELETE => {
-                        cleanup(&args.target, &args.sentinel)?;
+
+            if name.is_some_and(|n| n == args.sentinel) {
+                match mask {
+                    AddWatchFlags::IN_DELETE => cleanup(&args.target, &args.sentinel)?,
+                    AddWatchFlags::IN_CLOSE_WRITE => {
+                        populate(&args.source, &args.sentinel, &args.target)?
                     }
-                    _ => {
-                        populate(&args.source, &args.sentinel, &args.target)?;
-                    }
-                },
-                InotifyEvent {
-                    mask: AddWatchFlags::IN_DELETE_SELF | AddWatchFlags::IN_MOVE_SELF,
-                    ..
-                } => bail!("Failed to read Inotify events"),
-                _ => (),
+                    _ => bail!("Unexpected Inotify event: {:?} on the sentinel file", mask),
+                }
+            } else if mask.intersects(AddWatchFlags::IN_DELETE_SELF | AddWatchFlags::IN_MOVE_SELF) {
+                bail!("Monitored folder disappeared");
             }
         }
     }
