@@ -413,8 +413,7 @@ slots:
 
 environment:
   COMPONENT_INTERFACE: kernel-gpu-2404
-  COMPONENT_SENTINEL: kernel-gpu-2404-sentinel
-  COMPONENT_SOURCE: ${SNAP}/kernel-gpu-2404
+  COMPONENT_SENTINEL_PATH: ${SNAP}/kernel-gpu-2404/kernel-gpu-2404-sentinel
   COMPONENT_TARGET: ${SNAP_DATA}/kernel-gpu-2404
 
 apps:

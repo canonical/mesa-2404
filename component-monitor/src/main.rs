@@ -15,12 +15,9 @@ use clap::Parser;
 #[derive(Debug, Parser)]
 #[command(version, about)]
 struct Cli {
-    /// The source path to monitor
-    #[arg(env = "COMPONENT_SOURCE")]
-    source: PathBuf,
-    /// The sentinel file name
-    #[arg(env = "COMPONENT_SENTINEL")]
-    sentinel: PathBuf,
+    /// The sentinel path to monitor
+    #[arg(env = "COMPONENT_SENTINEL_PATH")]
+    sentinel_path: PathBuf,
     /// The target path to manage content in
     #[arg(env = "COMPONENT_TARGET")]
     target: PathBuf,
@@ -30,9 +27,9 @@ struct Cli {
 }
 
 /// Remove the sentinel file from target, then clear the target directory
-fn cleanup(target: &PathBuf, sentinel: &PathBuf) -> Result<()> {
+fn cleanup(target: &PathBuf, sentinel_name: &str) -> Result<()> {
     info!(target: "files", "cleaning up {target:?}");
-    let sentinel_path = target.join(sentinel);
+    let sentinel_path = target.join(sentinel_name);
     if sentinel_path.exists() {
         if let Err(err) = fs::remove_file(&sentinel_path) {
             warn!(target: "files", "failed to remove {0:?}: {err}", &sentinel_path)
@@ -70,9 +67,9 @@ fn cleanup(target: &PathBuf, sentinel: &PathBuf) -> Result<()> {
 
 /// Check if the sentinel file is current, else clean the target directory and populate again,
 /// sentinel file being last
-fn populate(source: &PathBuf, sentinel: &PathBuf, target: &PathBuf) -> Result<()> {
-    info!(target: "files", "populating {target:?} from {source:?} with sentinel {sentinel:?}");
-    let sentinel_src = source.join(sentinel);
+fn populate(source: &PathBuf, sentinel_name: &str, target: &PathBuf) -> Result<()> {
+    info!(target: "files", "populating {target:?} from {source:?} with sentinel {sentinel_name:?}");
+    let sentinel_src = source.join(sentinel_name);
 
     if !sentinel_src.exists() {
         info!(target: "files", "sentinel file ({0:?}) not found, skipping", &sentinel_src);
@@ -91,13 +88,13 @@ fn populate(source: &PathBuf, sentinel: &PathBuf, target: &PathBuf) -> Result<()
         }
     };
 
-    let sentinel_tgt = target.join(sentinel);
+    let sentinel_tgt = target.join(sentinel_name);
     if fs::read(&sentinel_tgt).is_ok_and(|content| content == sentinel_data) {
         info!(target: "files", "found current sentinel, skipping");
         return Ok(());
     }
 
-    cleanup(target, sentinel)?;
+    cleanup(target, sentinel_name)?;
     info!(target: "files", "copying from {source:?} to {target:?}");
     for entry in WalkDir::new(source) {
         let entry = match entry {
@@ -113,7 +110,7 @@ fn populate(source: &PathBuf, sentinel: &PathBuf, target: &PathBuf) -> Result<()
         if path == source {
             continue;
         }
-        if relative_path == sentinel {
+        if relative_path.as_os_str() == sentinel_name {
             continue;
         }
 
@@ -146,8 +143,13 @@ fn populate(source: &PathBuf, sentinel: &PathBuf, target: &PathBuf) -> Result<()
 /// - run cleanup on sentinel deletion
 /// - populate on sentinel written
 /// - panic on source remove
-fn monitor(inotify: &Inotify, args: &Cli) -> Result<()> {
-    info!(target: "inotify", "starting event monitoring on {0:?}", &args.source);
+fn monitor(
+    inotify: &Inotify,
+    source: &PathBuf,
+    sentinel_name: &str,
+    target: &PathBuf,
+) -> Result<()> {
+    info!(target: "inotify", "starting event monitoring on {:?}", &source);
     loop {
         let events = inotify
             .read_events()
@@ -161,12 +163,10 @@ fn monitor(inotify: &Inotify, args: &Cli) -> Result<()> {
                 name
             );
 
-            if name.is_some_and(|n| n == args.sentinel) {
+            if name.is_some_and(|n| n == sentinel_name) {
                 match mask {
-                    AddWatchFlags::IN_DELETE => cleanup(&args.target, &args.sentinel)?,
-                    AddWatchFlags::IN_CLOSE_WRITE => {
-                        populate(&args.source, &args.sentinel, &args.target)?
-                    }
+                    AddWatchFlags::IN_DELETE => cleanup(&target, &sentinel_name)?,
+                    AddWatchFlags::IN_CLOSE_WRITE => populate(&source, &sentinel_name, &target)?,
                     _ => bail!("Unexpected Inotify event: {:?} on the sentinel file", mask),
                 }
             } else if mask.intersects(AddWatchFlags::IN_DELETE_SELF | AddWatchFlags::IN_MOVE_SELF) {
@@ -183,11 +183,23 @@ fn main() -> Result<()> {
     let mut signals = Signals::new([SIGINT, SIGTERM]).context("Failed to set up signals")?;
     let inotify = Inotify::init(InitFlags::IN_CLOEXEC).context("Failed to set up inotify")?;
 
-    if !args.source.is_dir() {
-        bail!("source ({0:?}) is not a directory", args.source);
-    }
+    let source = match args.sentinel_path.parent() {
+        Some(p) if p.is_dir() => p,
+        _ => bail!(
+            "Sentinel ({:?})'s parent is not a directory",
+            args.sentinel_path
+        ),
+    };
+
+    let sentinel_name = args
+        .sentinel_path
+        .file_name()
+        .context("Sentinel name could not be determined")?
+        .to_str()
+        .context("Sentinel name could not be read as a string")?;
+
     if !args.target.is_dir() {
-        bail!("target ({0:?}) is not a directory", args.target);
+        bail!("Target ({0:?}) is not a directory", args.target);
     }
 
     thread::spawn(move || {
@@ -197,7 +209,7 @@ fn main() -> Result<()> {
 
     inotify
         .add_watch(
-            &args.source,
+            source,
             AddWatchFlags::IN_CLOSE_WRITE
                 | AddWatchFlags::IN_DELETE
                 | AddWatchFlags::IN_MOVE_SELF
@@ -217,8 +229,14 @@ fn main() -> Result<()> {
     };
     log::set_max_level(log_level);
 
-    populate(&args.source, &args.sentinel, &args.target)?;
-    monitor(&inotify, &args).context("Sentinel monitoring failed")?;
+    populate(&source.to_path_buf(), &sentinel_name, &args.target)?;
+    monitor(
+        &inotify,
+        &source.to_path_buf(),
+        &sentinel_name,
+        &args.target,
+    )
+    .context("Sentinel monitoring failed")?;
 
     Ok(())
 }
