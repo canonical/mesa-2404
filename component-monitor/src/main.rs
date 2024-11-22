@@ -1,3 +1,4 @@
+use anyhow::{bail, Context, Result};
 use log::{debug, error, info, warn, LevelFilter};
 use nix::sys::inotify::{AddWatchFlags, InitFlags, Inotify, InotifyEvent};
 use signal_hook::{consts::SIGINT, consts::SIGTERM, iterator::Signals};
@@ -26,7 +27,7 @@ struct Cli {
 }
 
 /// Remove the sentinel file from target, then clear the target directory
-fn cleanup(target: &PathBuf, sentinel: &PathBuf) {
+fn cleanup(target: &PathBuf, sentinel: &PathBuf) -> Result<()> {
     info!(target: "files", "cleaning up {target:?}");
     let sentinel_path = target.join(sentinel);
     if sentinel_path.exists() {
@@ -68,44 +69,46 @@ fn cleanup(target: &PathBuf, sentinel: &PathBuf) {
             }
         }
     }
+
+    Ok(())
 }
 
 /// Check if the sentinel file is current, else clean the target directory and populate again,
 /// sentinel file being last
-fn populate(source: &PathBuf, sentinel: &PathBuf, target: &PathBuf) {
+fn populate(source: &PathBuf, sentinel: &PathBuf, target: &PathBuf) -> Result<()> {
     info!(target: "files", "populating {target:?} from {source:?} with sentinel {sentinel:?}");
     let sentinel_src = source.join(sentinel);
 
     if !sentinel_src.exists() {
         info!(target: "files", "sentinel file ({0:?}) not found, skipping", &sentinel_src);
-        return;
+        return Ok(());
     }
 
     let sentinel_data = match fs::read(&sentinel_src) {
         Ok(d) if d.trim_ascii() == b"" => {
             error!(target: "files", "found empty sentinel file ({0:?})", &sentinel_src);
-            return;
+            return Ok(());
         }
         Ok(d) => d,
         Err(e) => {
             error!(target: "files", "failed to read sentinel file: {e}");
-            return;
+            return Ok(());
         }
     };
 
     let sentinel_tgt = target.join(sentinel);
     if fs::read(&sentinel_tgt).is_ok_and(|content| content == sentinel_data) {
         info!(target: "files", "found current sentinel, skipping");
-        return;
+        return Ok(());
     }
 
-    cleanup(target, sentinel);
+    cleanup(target, sentinel)?;
     info!(target: "files", "copying from {source:?} to {target:?}");
     for entry in WalkDir::new(&source) {
         match entry {
             Ok(e) => {
                 let path = e.path();
-                let relative_path = path.strip_prefix(source).unwrap();
+                let relative_path = path.strip_prefix(source)?;
                 if path == source {
                     continue;
                 }
@@ -148,18 +151,20 @@ fn populate(source: &PathBuf, sentinel: &PathBuf, target: &PathBuf) {
             error!(target: "files", "failed to copy sentinel: {e}");
         }
     }
+
+    Ok(())
 }
 
 /// Handle inotify events:
 /// - run cleanup on sentinel deletion
 /// - populate on sentinel written
 /// - panic on source remove
-fn monitor(inotify: &Inotify, args: &Cli) {
+fn monitor(inotify: &Inotify, args: &Cli) -> Result<()> {
     info!(target: "inotify", "starting event monitoring on {0:?}", &args.source);
     loop {
         let events = inotify
             .read_events()
-            .expect("ERROR: Failed to read inotify events");
+            .context("Error reading Inotify events")?;
 
         for event in events {
             debug!(
@@ -175,16 +180,16 @@ fn monitor(inotify: &Inotify, args: &Cli) {
                     ..
                 } if *name == *args.sentinel => match mask {
                     AddWatchFlags::IN_DELETE => {
-                        cleanup(&args.target, &args.sentinel);
+                        cleanup(&args.target, &args.sentinel)?;
                     }
                     _ => {
-                        populate(&args.source, &args.sentinel, &args.target);
+                        populate(&args.source, &args.sentinel, &args.target)?;
                     }
                 },
                 InotifyEvent {
                     mask: AddWatchFlags::IN_DELETE_SELF | AddWatchFlags::IN_MOVE_SELF,
                     ..
-                } => panic!("ERROR: Monitored folder disappeared"),
+                } => bail!("Failed to read Inotify events"),
                 _ => (),
             }
         }
@@ -193,21 +198,17 @@ fn monitor(inotify: &Inotify, args: &Cli) {
 
 /// Set up source directory monitoring, populate the target directory and start monitoring
 /// the source for sentinel changes
-fn main() {
+fn main() -> Result<()> {
     let args = Cli::parse();
-    let mut signals = Signals::new([SIGINT, SIGTERM]).expect("ERROR: Failed to set up signals");
-    let inotify = Inotify::init(InitFlags::IN_CLOEXEC).expect("ERROR: Failed to set up inotify");
+    let mut signals = Signals::new([SIGINT, SIGTERM]).context("Failed to set up signals")?;
+    let inotify = Inotify::init(InitFlags::IN_CLOEXEC).context("Failed to set up inotify")?;
 
-    assert!(
-        args.source.is_dir(),
-        "ERROR: source ({0:?}) is not a directory",
-        args.source
-    );
-    assert!(
-        args.target.is_dir(),
-        "ERROR: target ({0:?}) is not a directory",
-        args.target
-    );
+    if !args.source.is_dir() {
+        bail!("source ({0:?}) is not a directory", args.source);
+    }
+    if !args.target.is_dir() {
+        bail!("target ({0:?}) is not a directory", args.target);
+    }
 
     thread::spawn(move || {
         signals.forever().next();
@@ -222,9 +223,13 @@ fn main() {
                 | AddWatchFlags::IN_MOVE_SELF
                 | AddWatchFlags::IN_DELETE_SELF,
         )
-        .expect("ERROR: Failed to add inotify watcher");
+        .context("Failed to add inotify watcher")?;
 
-    JournalLog::new().unwrap().install().unwrap();
+    JournalLog::new()
+        .context("Failed to create Journal Logger")?
+        .install()
+        .context("Failed to install Journal Logger")?;
+
     let log_level = if args.debug {
         LevelFilter::Debug
     } else {
@@ -232,6 +237,8 @@ fn main() {
     };
     log::set_max_level(log_level);
 
-    populate(&args.source, &args.sentinel, &args.target);
-    monitor(&inotify, &args);
+    populate(&args.source, &args.sentinel, &args.target)?;
+    monitor(&inotify, &args).context("Sentinel monitoring failed")?;
+
+    Ok(())
 }
