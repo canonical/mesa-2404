@@ -1,11 +1,11 @@
 use anyhow::{bail, Context, Result};
-use log::{debug, error, info, warn, LevelFilter};
+use log::{debug, error, info, LevelFilter};
 use nix::sys::inotify::{AddWatchFlags, InitFlags, Inotify, InotifyEvent};
 use signal_hook::{
     consts::{SIGINT, SIGTERM},
     iterator::Signals,
 };
-use std::{fs, path::PathBuf, thread};
+use std::{fs, path::Path, path::PathBuf, thread};
 use systemd_journal_logger::JournalLog;
 use walkdir::WalkDir;
 
@@ -27,38 +27,22 @@ struct Cli {
 }
 
 /// Remove the sentinel file from target, then clear the target directory
-fn cleanup(target: &PathBuf, sentinel_name: &str) -> Result<()> {
+fn cleanup(target: &Path, sentinel_name: &str) -> Result<()> {
     info!(target: "files", "cleaning up {target:?}");
     let sentinel_path = target.join(sentinel_name);
     if sentinel_path.exists() {
-        if let Err(err) = fs::remove_file(&sentinel_path) {
-            warn!(target: "files", "failed to remove {:?}: {err}", &sentinel_path)
-        } else {
-            debug!(target: "files", "removed sentinel ({:?})", &sentinel_path)
-        }
+        fs::remove_file(&sentinel_path)
+            .with_context(|| format!("Failed to remove {:?}", &sentinel_path))?;
+        debug!(target: "files", "removed sentinel ({:?})", &sentinel_path);
     }
-    for entry in fs::read_dir(target).context("failed to list target directory")? {
-        let entry = match entry {
-            Ok(e) => e,
-            Err(e) => {
-                error!(target: "files", "{e}");
-                continue;
-            }
-        };
-
-        let path = entry.path();
+    for entry in fs::read_dir(target).context("Failed to list target directory")? {
+        let path = entry.context("Failed to resolve entry")?.path();
         if path.is_dir() {
-            if let Err(err) = fs::remove_dir_all(&path) {
-                error!(target: "files", "failed to remove {:?}: {err}", &path)
-            } else {
-                debug!(target: "files", "removed {:?} recursively", &path)
-            }
+            fs::remove_dir_all(&path).with_context(|| format!("Failed to remove {:?}", &path))?;
+            debug!(target: "files", "removed {:?} recursively", &path);
         } else {
-            if let Err(err) = fs::remove_file(&path) {
-                error!(target: "files", "failed to remove {:?}: {err}", &path)
-            } else {
-                debug!(target: "files", "removed {:?}", &path)
-            }
+            fs::remove_file(&path).with_context(|| format!("Failed to remove {:?}", &path))?;
+            debug!(target: "files", "removed {:?}", &path);
         }
     }
 
@@ -67,7 +51,7 @@ fn cleanup(target: &PathBuf, sentinel_name: &str) -> Result<()> {
 
 /// Check if the sentinel file is current, else clean the target directory and populate again,
 /// sentinel file being last
-fn populate(source: &PathBuf, sentinel_name: &str, target: &PathBuf) -> Result<()> {
+fn populate(source: &Path, sentinel_name: &str, target: &Path) -> Result<()> {
     info!(target: "files", "populating {target:?} from {source:?} with sentinel {sentinel_name:?}");
     let sentinel_src = source.join(sentinel_name);
 
@@ -94,19 +78,14 @@ fn populate(source: &PathBuf, sentinel_name: &str, target: &PathBuf) -> Result<(
         return Ok(());
     }
 
-    cleanup(target, sentinel_name)?;
+    cleanup(target, sentinel_name).context("Cleanup failed")?;
     info!(target: "files", "copying from {source:?} to {target:?}");
     for entry in WalkDir::new(source) {
-        let entry = match entry {
-            Ok(e) => e,
-            Err(e) => {
-                error!(target: "files", "{e}");
-                continue;
-            }
-        };
-
+        let entry = entry.context("Failed to resolve entry")?;
         let path = entry.path();
-        let relative_path = path.strip_prefix(source)?;
+        let relative_path = path
+            .strip_prefix(source)
+            .context("Failed to strip relative path from entry")?;
         if path == source {
             continue;
         }
@@ -116,25 +95,18 @@ fn populate(source: &PathBuf, sentinel_name: &str, target: &PathBuf) -> Result<(
 
         let target_path = target.join(relative_path);
         if path.is_dir() {
-            if let Err(err) = fs::create_dir(&target_path) {
-                error!(target: "files", "failed to create {:?}: {err}", &target_path);
-            } else {
-                debug!(target: "files", "created {:?}", &target_path)
-            }
+            fs::create_dir(&target_path)
+                .with_context(|| format!("Failed to create {:?}", &target_path))?;
+            debug!(target: "files", "created {:?}", &target_path)
         } else {
-            if let Err(err) = fs::copy(path, &target_path) {
-                error!(target: "files", "failed to copy {:?} to {:?}: {err}", &path, &target_path);
-            } else {
-                debug!(target: "files", "copied {:?} to {:?}", &path, &target_path);
-            }
+            fs::copy(path, &target_path)
+                .with_context(|| format!("Failed to copy {:?} to {:?}", &path, &target_path))?;
+            debug!(target: "files", "copied {:?} to {:?}", &path, &target_path);
         }
     }
 
-    if let Err(err) = fs::copy(&sentinel_src, &sentinel_tgt) {
-        error!(target: "files", "failed to copy sentinel: {err}");
-    } else {
-        debug!(target: "files", "copied sentinel ({:?} to {:?})", sentinel_src, sentinel_tgt);
-    }
+    fs::copy(&sentinel_src, &sentinel_tgt).context("Failed to copy sentinel")?;
+    debug!(target: "files", "copied sentinel ({:?} to {:?})", sentinel_src, sentinel_tgt);
 
     Ok(())
 }
@@ -143,12 +115,7 @@ fn populate(source: &PathBuf, sentinel_name: &str, target: &PathBuf) -> Result<(
 /// - run cleanup on sentinel deletion
 /// - populate on sentinel written
 /// - panic on source remove
-fn monitor(
-    inotify: &Inotify,
-    source: &PathBuf,
-    sentinel_name: &str,
-    target: &PathBuf,
-) -> Result<()> {
+fn monitor(inotify: &Inotify, source: &Path, sentinel_name: &str, target: &Path) -> Result<()> {
     info!(target: "inotify", "starting event monitoring on {:?}", &source);
     loop {
         let events = inotify
@@ -203,8 +170,10 @@ fn main() -> Result<()> {
     }
 
     thread::spawn(move || {
-        signals.forever().next();
-        std::process::exit(0);
+        signals.forever().next().is_some_and(|s| {
+            info!("{:?} received, shutting down", s);
+            std::process::exit(0);
+        })
     });
 
     inotify
@@ -229,7 +198,8 @@ fn main() -> Result<()> {
     };
     log::set_max_level(log_level);
 
-    populate(&source.to_path_buf(), &sentinel_name, &args.target)?;
+    populate(&source.to_path_buf(), &sentinel_name, &args.target)
+        .context("Initial populating failed")?;
     monitor(
         &inotify,
         &source.to_path_buf(),
