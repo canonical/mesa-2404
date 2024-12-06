@@ -94,7 +94,15 @@ fn populate(source: &Path, sentinel_name: &str, target: &Path) -> Result<()> {
         }
 
         let target_path = target.join(relative_path);
-        if path.is_dir() {
+        let meta = fs::symlink_metadata(&path)
+            .with_context(|| format!("Failed to read file metadata for {:?}", &path))?;
+
+        if meta.is_symlink() {
+            let link_target = std::fs::read_link(&path)
+                .with_context(|| format!("Failed to read link at {:?}", &path))?;
+            std::os::unix::fs::symlink(link_target, &target_path)
+                .with_context(|| format!("Failed to create symlink at {:?}", target_path))?;
+        } else if meta.is_dir() {
             fs::create_dir(&target_path)
                 .with_context(|| format!("Failed to create {:?}", &target_path))?;
             debug!(target: "files", "created {:?}", &target_path)
