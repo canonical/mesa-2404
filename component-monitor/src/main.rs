@@ -80,15 +80,12 @@ fn populate(source: &Path, sentinel_name: &str, target: &Path) -> Result<()> {
 
     cleanup(target, sentinel_name).context("Cleanup failed")?;
     info!(target: "files", "copying from {source:?} to {target:?}");
-    for entry in WalkDir::new(source) {
+    for entry in WalkDir::new(source).min_depth(1) {
         let entry = entry.context("Failed to resolve entry")?;
         let path = entry.path();
         let relative_path = path
             .strip_prefix(source)
             .context("Failed to strip relative path from entry")?;
-        if path == source {
-            continue;
-        }
         if relative_path.as_os_str() == sentinel_name {
             continue;
         }
