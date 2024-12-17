@@ -1,6 +1,14 @@
 #!/bin/bash
 set -euo pipefail
 
+# The second content element is mounted at "${content_target}-2"
+COMPONENT_PATH="$( cd -- "$(dirname "$0")"/.. ; pwd -P )-2"
+
+# Use the component mangler to bootstrap the environment
+if [ -f ${COMPONENT_PATH}/@COMPONENT_SENTINEL@ ]; then
+  . ${COMPONENT_PATH}/@COMPONENT_MANGLER@
+fi
+
 SELF="$( cd -- "$(dirname "$0")/.." ; pwd -P )/usr"
 ARCH_TRIPLETS=( @ARCH_TRIPLETS@ )
 
