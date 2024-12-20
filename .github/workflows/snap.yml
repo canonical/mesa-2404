@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: ${{ fromJSON(github.repository == github.event.pull_request.head.repo.full_name && '["amd64","armhf","arm64","ppc64el","s390x"]' || '["amd64"]') }}
+        platform: ${{ fromJSON(github.repository == github.event.pull_request.head.repo.full_name && '["amd64","armhf","arm64"]' || '["amd64"]') }}
 
     steps:
     - name: Check out code
