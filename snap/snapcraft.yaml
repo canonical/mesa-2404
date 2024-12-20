@@ -27,9 +27,6 @@ platforms:
   amd64:
   arm64:
   armhf:
-  ppc64el:
-  s390x:
-  riscv64:
 
 package-repositories:
   - type: apt
@@ -39,6 +36,14 @@ package-repositories:
     architectures: [i386]
     key-id: F6ECB3762474EDA9D21B7022871920D1991BC93C
     key-server: keyserver.ubuntu.com
+  - type: apt
+    url: https://ppa.launchpadcontent.net/kisak/kisak-mesa/ubuntu
+    suites: [noble]
+    components: [main]
+    architectures: [amd64, arm64, armhf, i386]
+    key-id: EB8B81E14DA65431D7504EA8F63F0F2B90935439
+    key-server: keyserver.ubuntu.com
+    priority: prefer
 
 parts:
   apis:
