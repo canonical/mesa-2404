@@ -110,7 +110,12 @@ parts:
     override-stage: |
       sed -i 's@/usr/lib/[a-z0-9_-]\+/@@' ${CRAFT_PART_INSTALL}/usr/share/vulkan/*/*.json
       craftctl default
-      craftctl set version=$( apt-cache policy libgl1-mesa-dri | sed -rne 's/^\s+Candidate:\s+([^-]*)-.+$/\1/p' )
+      craftctl set version=$(
+        dpkg-parsechangelog \
+          --file ${CRAFT_PART_INSTALL}/usr/share/doc/libgl1-mesa-dri/changelog* \
+          --show-field Version \
+        | sed -rne 's/(^[0-9.]+).*/\1/p'
+      )
 
   x11:
     # X11 support (not much cost to having this)
