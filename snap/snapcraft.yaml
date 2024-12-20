@@ -36,6 +36,7 @@ package-repositories:
     key-server: keyserver.ubuntu.com
   - type: apt
     ppa: ubuntu-concept/x1e
+    priority: always
 
 parts:
   apis:
