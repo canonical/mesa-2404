@@ -15,8 +15,8 @@ jobs:
       fail-fast: false
       matrix:
         ref:
-        - adreno
         - asahi
+        - kisak
 
     steps:
     - name: Check out code
