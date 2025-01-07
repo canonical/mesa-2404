@@ -49,3 +49,9 @@ jobs:
             mir-test-tools.smoke-test
           '
         "
+
+    - if: ${{ failure() && runner.debug }}
+      name: Set up tmate session (restart with debug logging to activate)
+      uses: mxschmitt/action-tmate@v3
+      with:
+        limit-access-to-actor: true
