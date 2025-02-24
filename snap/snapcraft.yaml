@@ -277,14 +277,6 @@ parts:
       - usr/share/vulkan
       - usr/share/doc/*/copyright
       - drirc.d
-      # The move from python3-minimal to python3 itself brought these in
-      # https://git.launchpad.net/ubuntu/+source/mesa/commit/debian?id=d052009df4038291bd330540594f2ace126b9cae
-      - -etc/apt
-      - -usr/bin/debconf*
-      - -usr/share/doc/debconf*
-      - -usr/share/lintian/overrides/debconf
-      - -usr/share/man/man1/debconf*
-      - -usr/share/man/man8/dpkg-*
 
   x11-i386:
     # X11 support (not much cost to having this)
