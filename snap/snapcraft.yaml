@@ -99,9 +99,6 @@ parts:
       - libvdpau-va-gl1
       - mesa-vulkan-drivers
       - libglx-mesa0
-      # This got refactored into libgallium, but to avoid it going missing on
-      # mesa-2404 refresh, bring it back explicitly
-      - libdrm-nouveau2
     organize:
       # Expected at /drirc.d by the `gpu-2404` interface
       usr/share/drirc.d: drirc.d
@@ -265,8 +262,6 @@ parts:
         - vdpau-driver-all:i386
         - mesa-vulkan-drivers:i386
         - libglx-mesa0:i386
-        # See `dri:` above
-        - libdrm-nouveau2:i386
     override-stage: |
       if [ `arch` = "x86_64" ]; then
         sed -i 's@/usr/lib/[a-z0-9_-]\+/@@' ${CRAFT_PART_INSTALL}/usr/share/vulkan/*/*.json
@@ -282,14 +277,6 @@ parts:
       - usr/share/vulkan
       - usr/share/doc/*/copyright
       - drirc.d
-      # The move from python3-minimal to python3 itself brought these in
-      # https://git.launchpad.net/ubuntu/+source/mesa/commit/debian?id=d052009df4038291bd330540594f2ace126b9cae
-      - -etc/apt
-      - -usr/bin/debconf*
-      - -usr/share/doc/debconf*
-      - -usr/share/lintian/overrides/debconf
-      - -usr/share/man/man1/debconf*
-      - -usr/share/man/man8/dpkg-*
 
   x11-i386:
     # X11 support (not much cost to having this)
@@ -346,6 +333,30 @@ parts:
     prime:
       - usr/lib
 
+  # These were at some point part of mesa-2404 and its cleanup lists,
+  # but are no longer dependencies.
+  # To avoid refreshes breaking consumer snaps, we need to hold on to them.
+  legacy:
+    plugin: nil
+    stage-packages:
+      - libdrm-nouveau2
+      - libllvm17t64
+    prime:
+      - usr/lib
+      - usr/share/doc/*/copyright
+
+  legacy-i386:
+    plugin: nil
+    stage-packages:
+      - on amd64:
+        - libdrm-nouveau2:i386
+        - libllvm17t64:i386
+        - libpciaccess0:i386
+    override-prime: |
+      if [ `arch` = "x86_64" ]; then craftctl default; fi
+    prime:
+      - usr/lib
+
   # Work around https://bugs.launchpad.net/snapcraft/+bug/2076115
   cleanup:
     after:
@@ -363,6 +374,8 @@ parts:
     - va-i386
     - x11-i386
     - wayland-i386
+    - legacy
+    - legacy-i386
     plugin: nil
     build-snaps:
     - core24
