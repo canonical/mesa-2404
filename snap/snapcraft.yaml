@@ -390,16 +390,52 @@ parts:
     plugin: nil
     override-prime: |
       mkdir -p ${CRAFT_PRIME}/snap
+
+      # Avoid new userspace drivers slipping into the consumer snaps,
+      # using wildcards to support multi-arch snaps
+      cat <<EOF > ${CRAFT_PRIME}/snap/${CRAFT_ARCH_BUILD_FOR}.list
+      usr/lib/*/dri/*
+      usr/lib/*/libVkLayer_*.so
+      usr/lib/*/libvulkan_*.so
+      usr/lib/*/vdpau/*
+      usr/share/drirc.d/*
+      usr/share/egl/egl_external_platform.d/*
+      usr/share/glvnd/egl_vendor.d/*
+      usr/share/libdrm/*
+      usr/share/vulkan/*.d/*
+      EOF
+
+      # Elements that should be pruned from the list
+      cleanup_patterns=(
+        -e debconf                                    # Cruft pulled in through python3 dependency (dropped upstream)
+        -e dpkg-reconfigure                           # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1061658
+        -e ^usr/lib/.*/dri/                           # Individual DRI and LibVA drivers
+        -e ^usr/lib/.*/libVkLayer_.*.so               # Vulkan layer libraries
+        -e ^usr/lib/.*/libvulkan_.*.so                # Individual Vulkan drivers
+        -e ^usr/lib/.*/vdpau/                         # Individual VDPAU drivers
+        -e ^usr/share/drirc.d/.*                      # Mesa quirk files
+        -e ^usr/share/egl/egl_external_platform.d/.*  # EGL ICD files
+        -e ^usr/share/glvnd/egl_vendor.d/*            # glvnd ICD files
+        -e ^usr/share/libdrm/.*                       # libdrm support files
+        -e ^usr/share/vulkan/.*.d/*                   # Vulkan ICD files
+      )
+
       (
         cd ${CRAFT_PART_INSTALL}/../..
-        # All the cruft coming from stage packages, but not actually staged
-        find $( ls -d */install/{etc,usr/{bin,share/{bug,doc,gcc,gdb,lintian,man}}} ) -type f,l | cut -d/ -f3-
+        # All the cruft coming from stage packages, but not actually primed
+        find $( ls -d */install/usr/share/{bug,doc,gcc,gdb,lintian,man} ) -type f,l | cut -d/ -f3-
+
         cd ${CRAFT_PRIME}
-        # Everything that is indeed staged
+        # Everything that is indeed primed
         find usr -type f,l
+
         # The re-organized bits
-        find drirc.d libdrm X11 -type f,l | awk '{ print "usr/share/" $0 }'
-      ) | sort -u > ${CRAFT_PRIME}/snap/${CRAFT_ARCH_BUILD_FOR}.list
+        find X11 -type f,l | awk '{ print "usr/share/" $0 }'
+      ) \
+      | grep --invert-match "${cleanup_patterns[@]}" \
+      | sed 's/\(.so.[0-9]\+\)\([0-9\.]\+\)\?$/\1*/' \
+      | sort --unique \
+      >> ${CRAFT_PRIME}/snap/${CRAFT_ARCH_BUILD_FOR}.list
 
   scripts:
     after: [file-list]
