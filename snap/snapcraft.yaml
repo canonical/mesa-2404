@@ -115,7 +115,7 @@ parts:
           --file ${CRAFT_PART_INSTALL}/usr/share/doc/libgl1-mesa-dri/changelog* \
           --show-field Version \
         | sed -rne 's/(^[0-9.]+).*/\1/p'
-      )
+      )-snap$( git -C $CRAFT_PROJECT_DIR rev-list --count HEAD )
 
   x11:
     # X11 support (not much cost to having this)
