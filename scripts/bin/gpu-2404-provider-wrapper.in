@@ -24,7 +24,7 @@ __EGL_EXTERNAL_PLATFORM_CONFIG_DIRS=${__EGL_EXTERNAL_PLATFORM_CONFIG_DIRS:+$__EG
 DRIRC_CONFIGDIR=$( cd -- "$(dirname "$0")/../drirc.d" ; pwd -P )
 VK_LAYER_PATH=${VK_LAYER_PATH:+$VK_LAYER_PATH:}${SELF}/share/vulkan/implicit_layer.d/:${SELF}/share/vulkan/explicit_layer.d/
 XDG_DATA_DIRS=${XDG_DATA_DIRS:+$XDG_DATA_DIRS:}${SELF}/share
-XLOCALEDIR="$(realpath "${SELF}/../X11/locale")"
+XLOCALEDIR=$( cd -- "$(dirname "$0")/../X11/locale" ; pwd -P )
 
 # These are in the default LD_LIBRARY_PATH, but in case the snap dropped it inadvertently
 if [ -d "/var/lib/snapd/lib/gl" ] && [[ ! ${LD_LIBRARY_PATH} =~ (^|:)/var/lib/snapd/lib/gl(:|$) ]]; then
