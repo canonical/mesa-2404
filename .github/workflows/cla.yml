@@ -1,0 +1,14 @@
+# The name of the file should not be changed as it is used in Org Ruleset
+name: cla-check
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  merge_group:
+    types: [checks_requested]
+
+jobs:
+  cla-check:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check if CLA signed
+        uses: canonical/has-signed-canonical-cla@v2
