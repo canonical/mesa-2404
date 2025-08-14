@@ -140,6 +140,7 @@ parts:
     prime:
       - usr/lib
       - usr/share/doc/*/copyright
+      - usr/share/X11/locale
       - X11
 
   wayland:
@@ -297,15 +298,11 @@ parts:
         - libxdamage1:i386
         - libxdmcp6:i386
         - libxshmfence1:i386
-    organize:
-      # Expected at /X11 by the `gpu-2404` interface
-      usr/share/X11: X11
     override-prime: |
       if [ `arch` = "x86_64" ]; then craftctl default; fi
     prime:
       - usr/lib
       - usr/share/doc/*/copyright
-      - X11
 
   wayland-i386:
     # Wayland support (not much cost to having this)
