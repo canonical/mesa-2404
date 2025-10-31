@@ -401,6 +401,7 @@ parts:
       usr/lib/*/libVkLayer_*.so
       usr/lib/*/libvulkan_*.so
       usr/lib/*/vdpau/*
+      usr/share/X11/locale/*
       usr/share/drirc.d/*
       usr/share/egl/egl_external_platform.d/*
       usr/share/glvnd/egl_vendor.d/*
@@ -416,6 +417,7 @@ parts:
         -e ^usr/lib/.*/libVkLayer_.*.so               # Vulkan layer libraries
         -e ^usr/lib/.*/libvulkan_.*.so                # Individual Vulkan drivers
         -e ^usr/lib/.*/vdpau/                         # Individual VDPAU drivers
+        -e ^usr/share/X11/locale/*                    # X11 locale files
         -e ^usr/share/drirc.d/.*                      # Mesa quirk files
         -e ^usr/share/egl/egl_external_platform.d/.*  # EGL ICD files
         -e ^usr/share/glvnd/egl_vendor.d/*            # glvnd ICD files
