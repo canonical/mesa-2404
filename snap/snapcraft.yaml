@@ -399,6 +399,7 @@ parts:
       cat <<EOF > ${CRAFT_PRIME}/snap/${CRAFT_ARCH_BUILD_FOR}.list
       usr/lib/*/dri/*
       usr/lib/*/libVkLayer_*.so
+      usr/lib/*/libgallium-*.so
       usr/lib/*/libvulkan_*.so
       usr/lib/*/vdpau/*
       usr/share/X11/locale/*
@@ -415,6 +416,7 @@ parts:
         -e dpkg-reconfigure                           # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1061658
         -e ^usr/lib/.*/dri/                           # Individual DRI and LibVA drivers
         -e ^usr/lib/.*/libVkLayer_.*.so               # Vulkan layer libraries
+        -e ^usr/lib/.*/libgallium-.*.so               # Mesa's shared infrastracture libraries
         -e ^usr/lib/.*/libvulkan_.*.so                # Individual Vulkan drivers
         -e ^usr/lib/.*/vdpau/                         # Individual VDPAU drivers
         -e ^usr/share/X11/locale/*                    # X11 locale files
