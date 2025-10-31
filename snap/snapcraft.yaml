@@ -337,7 +337,10 @@ parts:
     plugin: nil
     stage-packages:
       - libdrm-nouveau2
+      - libdrm-radeon1
+      - libglapi-mesa
       - libllvm17t64
+      - libllvm19
     prime:
       - usr/lib
       - usr/share/doc/*/copyright
@@ -347,7 +350,10 @@ parts:
     stage-packages:
       - on amd64:
         - libdrm-nouveau2:i386
+        - libdrm-radeon1:i386
+        - libglapi-mesa:i386
         - libllvm17t64:i386
+        - libllvm19:i386
         - libpciaccess0:i386
     override-prime: |
       if [ `arch` = "x86_64" ]; then craftctl default; fi
