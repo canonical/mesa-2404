@@ -196,6 +196,29 @@ parts:
       - usr/lib/**/*.so.*
       - usr/share/egl/egl_external_platform.d
 
+  nvidia-vaapi:
+    # NVIDIA VA-API driver
+    source: https://github.com/elFarto/nvidia-vaapi-driver.git
+    source-commit: 57a476b0e55f015759d9c50cc1f13159c6cd8f95
+    source-depth: 1
+    plugin: meson
+    meson-parameters:
+      - --prefix=/usr
+    build-packages:
+      - meson
+      - pkgconf
+      - libva-dev
+      - libegl-dev
+      - libdrm-dev
+      - libgstreamer-plugins-bad1.0-dev
+    stage-packages:
+      - libgstreamer-plugins-bad1.0-0
+    prime:
+      - usr/lib/**/dri/nvidia_drv_video.so
+      - usr/lib/**/libgst*.so*
+      - usr/lib/**/libnice.so*
+      - usr/share/doc/*/copyright
+
   apis-i386:
       # This provides the essential APIs
       #   o libGL.so.1
@@ -330,6 +353,17 @@ parts:
     prime:
       - usr/lib
 
+  nvidia-vaapi-i386:
+    # NVIDIA VA-API driver
+    plugin: nil
+    stage-packages:
+      - on amd64:
+        - libgstreamer-plugins-bad1.0-0:i386
+    override-prime: |
+      if [ `arch` = "x86_64" ]; then craftctl default; fi
+    prime:
+      - usr/lib
+
   # These were at some point part of mesa-2404 and its cleanup lists,
   # but are no longer dependencies.
   # To avoid refreshes breaking consumer snaps, we need to hold on to them.
@@ -367,6 +401,7 @@ parts:
     - drm
     - dri
     - nvidia-egl-ext
+    - nvidia-vaapi
     - va
     - x11
     - wayland
@@ -374,6 +409,7 @@ parts:
     - drm-i386
     - dri-i386
     - nvidia-egl-ext-i386
+    - nvidia-vaapi-i386
     - va-i386
     - x11-i386
     - wayland-i386
