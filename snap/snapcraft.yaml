@@ -197,9 +197,8 @@ parts:
       - usr/share/egl/egl_external_platform.d
 
   nvidia-vaapi:
-    # NVIDIA VA-API driver
-    source: https://github.com/elFarto/nvidia-vaapi-driver.git
-    source-commit: 57a476b0e55f015759d9c50cc1f13159c6cd8f95
+    source: https://git.launchpad.net/ubuntu/+source/nvidia-vaapi-driver
+    source-branch: applied/ubuntu/noble
     source-depth: 1
     plugin: meson
     meson-parameters:
@@ -210,13 +209,8 @@ parts:
       - libva-dev
       - libegl-dev
       - libdrm-dev
-      - libgstreamer-plugins-bad1.0-dev
-    stage-packages:
-      - libgstreamer-plugins-bad1.0-0
     prime:
       - usr/lib/**/dri/nvidia_drv_video.so
-      - usr/lib/**/libgst*.so*
-      - usr/lib/**/libnice.so*
       - usr/share/doc/*/copyright
 
   apis-i386:
@@ -354,11 +348,44 @@ parts:
       - usr/lib
 
   nvidia-vaapi-i386:
-    # NVIDIA VA-API driver
-    plugin: nil
-    stage-packages:
+    source: https://git.launchpad.net/ubuntu/+source/nvidia-vaapi-driver
+    source-branch: applied/ubuntu/noble
+    source-depth: 1
+    plugin: meson
+    meson-parameters:
+      - --prefix=/usr
+      - --libdir=/usr/lib/i386-linux-gnu
+    build-packages:
       - on amd64:
-        - libgstreamer-plugins-bad1.0-0:i386
+        - meson
+        - pkgconf:i386
+        - libva-dev:i386
+        - libegl-dev:i386
+        - libdrm-dev:i386
+        - gcc-multilib
+    override-build: |
+      if [ `arch` = "x86_64" ]; then
+        cat > cross-i386.txt << EOF
+      [binaries]
+      c = 'gcc'
+      ar = 'ar'
+      strip = 'strip'
+      pkgconfig = 'pkg-config'
+      
+      [properties]
+      c_args = ['-m32']
+      c_link_args = ['-m32']
+      
+      [host_machine]
+      system = 'linux'
+      cpu_family = 'x86'
+      cpu = 'i686'
+      endian = 'little'
+      EOF
+        meson setup build --cross-file=cross-i386.txt --prefix=/usr --libdir=/usr/lib/i386-linux-gnu
+        meson compile -C build
+        DESTDIR="${CRAFT_PART_INSTALL}" meson install -C build
+      fi
     override-prime: |
       if [ `arch` = "x86_64" ]; then craftctl default; fi
     prime:
