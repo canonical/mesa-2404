@@ -197,7 +197,7 @@ parts:
       - usr/share/egl/egl_external_platform.d
 
   nvidia-vaapi:
-    source: https://git.launchpad.net/ubuntu/+source/nvidia-vaapi-driver
+    source: git://git.launchpad.net/ubuntu/+source/nvidia-vaapi-driver
     source-branch: applied/ubuntu/noble
     source-depth: 1
     plugin: meson
@@ -348,7 +348,7 @@ parts:
       - usr/lib
 
   nvidia-vaapi-i386:
-    source: https://git.launchpad.net/ubuntu/+source/nvidia-vaapi-driver
+    source: git://git.launchpad.net/ubuntu/+source/nvidia-vaapi-driver
     source-branch: applied/ubuntu/noble
     source-depth: 1
     plugin: meson
