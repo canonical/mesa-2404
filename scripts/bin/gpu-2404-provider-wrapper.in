@@ -77,4 +77,8 @@ export VK_LAYER_PATH
 export XDG_DATA_DIRS
 export XLOCALEDIR
 
+# Make use of the https://gitlab.freedesktop.org/mesa/libdrm/-/merge_requests/273 patch
+# in libdrm to find the amdgpu.ids file in other places
+export AMDGPU_ASIC_ID_TABLE_PATHS=${SNAP}/gpu-2404/libdrm:${SNAP}/usr/share/libdrm:${SNAP}/usr/local/share/libdrm:/usr/share/libdrm:/usr/local/share/libdrm
+
 exec "$@"
