@@ -8,7 +8,7 @@ anyhow = { version = "1.0.93", default-features = false, features = ["std"] }
 clap = { version = "4", default-features = false, features = ["derive", "env", "help", "std", "usage"] }
 log = { version = "0.4", default-features = false }
 nix = { version = "0.30", default-features = false, features = ["inotify"] }
-signal-hook = { version = "0.3", default-features = false, features = ["iterator"] }
+signal-hook = { version = "0.4", default-features = false, features = ["iterator"] }
 systemd-journal-logger = { version = "2", default-features = false }
 thiserror = { version = "2.0.3", default-features = false, features = ["std"] }
 walkdir = { version = "2", default-features = false }
