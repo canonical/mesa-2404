@@ -385,7 +385,8 @@ parts:
     override-prime: |
       set -eux
       cd /snap/core24/current
-      find . -type f,l -exec rm -f ${CRAFT_PRIME}/{} \;
+      # Keep libdrm in to avoid potentially mixing versions with the base snap
+      find . -type f,l -not -name 'libdrm*' -exec rm -f ${CRAFT_PRIME}/{} \;
       find ${CRAFT_PRIME} -empty -type d -delete
 
   file-list:
@@ -399,6 +400,7 @@ parts:
       cat <<EOF > ${CRAFT_PRIME}/snap/${CRAFT_ARCH_BUILD_FOR}.list
       usr/lib/*/dri/*
       usr/lib/*/libVkLayer_*.so
+      usr/lib/*/libdrm_*.so*
       usr/lib/*/libgallium-*.so
       usr/lib/*/libvulkan_*.so
       usr/lib/*/vdpau/*
@@ -416,6 +418,7 @@ parts:
         -e dpkg-reconfigure                           # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1061658
         -e ^usr/lib/.*/dri/                           # Individual DRI and LibVA drivers
         -e ^usr/lib/.*/libVkLayer_.*.so               # Vulkan layer libraries
+        -e ^usr/lib/.*/libdrm_.*.so*                  # libdrm userspace libraries
         -e ^usr/lib/.*/libgallium-.*.so               # Mesa's shared infrastracture libraries
         -e ^usr/lib/.*/libvulkan_.*.so                # Individual Vulkan drivers
         -e ^usr/lib/.*/vdpau/                         # Individual VDPAU drivers
