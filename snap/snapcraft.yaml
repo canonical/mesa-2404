@@ -1,9 +1,9 @@
-name: mesa-2404
+name: mesa-2604
 license: MIT
-base: core24
-summary: Mesa libraries for core24 snaps
+base: core26
+summary: Mesa libraries for core26 snaps
 description: |
-  A content snap containing the mesa libraries and drivers for `base: core24` snaps.
+  A content snap containing the mesa libraries and drivers for `base: core26` snaps.
 
   It supports a broad range of hardware through the Mesa stack as well as Nvidia
   drivers installed from your distribution through the native SnapD support.
@@ -12,10 +12,10 @@ description: |
   a broader set of hardware without including the drivers in your snap, refer to the
   documentation below:
 
-  https://mir-server.io/docs/the-gpu-2404-snap-interface
-website: https://github.com/canonical/mesa-2404
-contact: https://github.com/canonical/mesa-2404/issues
-source-code: https://github.com/canonical/mesa-2404
+  https://canonical.com/mir/docs/the-gpu-2404-snap-interface
+website: https://github.com/canonical/mesa-2604
+contact: https://github.com/canonical/mesa-2604/issues
+source-code: https://github.com/canonical/mesa-2604
 
 compression: lzo
 adopt-info: dri
@@ -153,7 +153,7 @@ parts:
       - libxdmcp6
       - libxshmfence1
     organize:
-      # Expected at /X11/XErrorDB by the `gpu-2404` interface
+      # Expected at /X11/XErrorDB by the `gpu-2604` interface
       usr/share/X11/XErrorDB: X11/XErrorDB
     prime:
       - usr/lib
@@ -352,7 +352,7 @@ parts:
     prime:
       - usr/lib
 
-  # These were at some point part of mesa-2404 and its cleanup lists,
+  # These were at some point part of mesa-2604 and its cleanup lists,
   # but are no longer dependencies.
   # To avoid refreshes breaking consumer snaps, we need to hold on to them.
   legacy:
@@ -403,10 +403,10 @@ parts:
     - legacy-i386
     plugin: nil
     build-snaps:
-    - core24
+    - core26
     override-prime: |
       set -eux
-      cd /snap/core24/current
+      cd /snap/core26/current
       # Keep libdrm in to avoid potentially mixing versions with the base snap
       find . -type f,l -not -name 'libdrm*' -exec rm -f ${CRAFT_PRIME}/{} \;
       find ${CRAFT_PRIME} -empty -type d -delete
@@ -475,7 +475,7 @@ parts:
     source: scripts
     override-build: |
       set -x
-      SCRIPT=bin/gpu-2404-provider-wrapper
+      SCRIPT=bin/gpu-2604-provider-wrapper
       ARCH_TRIPLETS=( ${CRAFT_ARCH_TRIPLET_BUILD_FOR} )
 
       [ ${CRAFT_ARCH_BUILD_FOR} == amd64 ] && ARCH_TRIPLETS+=( i386-linux-gnu )
@@ -483,8 +483,8 @@ parts:
       mkdir -p ${CRAFT_PART_INSTALL}/bin
       sed \
         -e "s/@ARCH_TRIPLETS@/${ARCH_TRIPLETS[*]}/" \
-        -e "s/@COMPONENT_SENTINEL@/kernel-gpu-2404-sentinel/" \
-        -e "s/@COMPONENT_MANGLER@/kernel-gpu-2404-provider-mangler/" \
+        -e "s/@COMPONENT_SENTINEL@/kernel-gpu-2604-sentinel/" \
+        -e "s/@COMPONENT_MANGLER@/kernel-gpu-2604-provider-mangler/" \
         ${CRAFT_PART_SRC}/${SCRIPT}.in \
         > ${CRAFT_PART_INSTALL}/${SCRIPT}
       chmod 555 ${CRAFT_PART_INSTALL}/${SCRIPT}
@@ -495,21 +495,21 @@ parts:
     source: component-monitor
 
 plugs:
-  kernel-gpu-2404:
+  kernel-gpu-2604:
     interface: content
-    target: $SNAP/kernel-gpu-2404
+    target: $SNAP/kernel-gpu-2604
 
 slots:
-  gpu-2404:
+  gpu-2604:
     interface: content
     read:
     - $SNAP
-    - $SNAP_DATA/kernel-gpu-2404
+    - $SNAP_DATA/kernel-gpu-2604
 
 environment:
-  COMPONENT_INTERFACE: kernel-gpu-2404
-  COMPONENT_SENTINEL_PATH: ${SNAP}/kernel-gpu-2404/kernel-gpu-2404-sentinel
-  COMPONENT_TARGET: ${SNAP_DATA}/kernel-gpu-2404
+  COMPONENT_INTERFACE: kernel-gpu-2604
+  COMPONENT_SENTINEL_PATH: ${SNAP}/kernel-gpu-2604/kernel-gpu-2604-sentinel
+  COMPONENT_TARGET: ${SNAP_DATA}/kernel-gpu-2604
 
 apps:
   component-monitor:

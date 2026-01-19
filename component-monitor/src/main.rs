@@ -11,7 +11,7 @@ use walkdir::WalkDir;
 
 use clap::Parser;
 
-/// Manage the kernel-gpu-2404 contents
+/// Manage the kernel-gpu-2604 contents
 #[derive(Debug, Parser)]
 #[command(version, about)]
 struct Cli {
