@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-COMPONENT_PATH="$( cd -- "$(dirname "$0")"/.. ; pwd -P )/kernel-gpu-2404"
+COMPONENT_PATH="$( cd -- "$(dirname "$0")"/.. ; pwd -P )/kernel-gpu-2604"
 
 # Use the component mangler to bootstrap the environment
 if [ -f ${COMPONENT_PATH}/@COMPONENT_SENTINEL@ ]; then
@@ -9,7 +9,7 @@ if [ -f ${COMPONENT_PATH}/@COMPONENT_SENTINEL@ ]; then
 fi
 
 SELF_BASE="$( cd -- "$(dirname "$0")/.." ; pwd -P )"
-SELF=${SELF_BASE}/mesa-2404/usr
+SELF=${SELF_BASE}/mesa-2604/usr
 ARCH_TRIPLETS=( @ARCH_TRIPLETS@ )
 
 # VDPAU_DRIVER_PATH only supports a single path, rely on LD_LIBRARY_PATH instead
