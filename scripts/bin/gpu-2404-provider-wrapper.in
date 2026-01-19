@@ -9,7 +9,8 @@ if [ -f ${COMPONENT_PATH}/@COMPONENT_SENTINEL@ ]; then
   . ${COMPONENT_PATH}/@COMPONENT_MANGLER@
 fi
 
-SELF="$( cd -- "$(dirname "$0")/.." ; pwd -P )/usr"
+SELF_BASE="$( cd -- "$(dirname "$0")/.." ; pwd -P )"
+SELF=${SELF_BASE}/usr
 ARCH_TRIPLETS=( @ARCH_TRIPLETS@ )
 
 # VDPAU_DRIVER_PATH only supports a single path, rely on LD_LIBRARY_PATH instead
@@ -79,6 +80,6 @@ export XLOCALEDIR
 
 # Make use of the https://gitlab.freedesktop.org/mesa/libdrm/-/merge_requests/273 patch
 # in libdrm to find the amdgpu.ids file in other places
-export AMDGPU_ASIC_ID_TABLE_PATHS=${SNAP}/gpu-2404/libdrm:${SNAP}/usr/share/libdrm:${SNAP}/usr/local/share/libdrm:/usr/share/libdrm:/usr/local/share/libdrm
+export AMDGPU_ASIC_ID_TABLE_PATHS=${AMDGPU_ASIC_ID_TABLE_PATHS:+$AMDGPU_ASIC_ID_TABLE_PATHS:}${SELF_BASE}/libdrm
 
 exec "$@"
