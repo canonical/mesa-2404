@@ -1,6 +1,7 @@
 name: mesa-2604
 license: MIT
 base: core26
+build-base: devel
 summary: Mesa libraries for core26 snaps
 description: |
   A content snap containing the mesa libraries and drivers for `base: core26` snaps.
@@ -20,7 +21,7 @@ source-code: https://github.com/canonical/mesa-2604
 compression: lzo
 adopt-info: dri
 
-grade: stable
+grade: devel
 confinement: strict
 
 platforms:
