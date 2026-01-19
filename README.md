@@ -8,8 +8,7 @@ Path|Description|Use
 --|--|--
 bin/gpu-2604-provider-wrapper|Sets up all the environment|Run your application through it
 ||
-libdrm|Needed by mesa on AMD GPUs|Layout to /usr/share/libdrm
-X11/XErrorDB|X11 locales etc|Layout to /usr/share/X11/XErrorDB
+usr/share/X11/XErrorDB|X11 error database|Layout to /usr/share/X11/XErrorDB
 ||
 mir-quirks|Mir configuration for driver support|Mir specific
 

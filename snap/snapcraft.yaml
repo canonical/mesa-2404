@@ -86,13 +86,10 @@ parts:
         - libdrm-tegra0
       - on riscv64:
         - libdrm-intel1
-    organize:
-      # Expected at /libdrm by the `gpu-2404` interface
-      usr/share/libdrm: libdrm
     prime:
       - usr/lib
       - usr/share/doc/*/copyright
-      - libdrm
+      - usr/share/libdrm
 
   va:
     # Video Acceleration API
@@ -117,14 +114,11 @@ parts:
       - libvdpau-va-gl1
       - mesa-vulkan-drivers
       - libglx-mesa0
-    organize:
-      # Expected at /drirc.d by the `gpu-2404` interface
-      usr/share/drirc.d: drirc.d
     prime:
       - usr/lib
       - usr/share/doc/*/copyright
+      - usr/share/drirc.d
       - usr/share/vulkan
-      - drirc.d
     override-stage: |
       sed -i 's@/usr/lib/[a-z0-9_-]\+/@@' ${CRAFT_PART_INSTALL}/usr/share/vulkan/*/*.json
       craftctl default
@@ -152,14 +146,11 @@ parts:
       - libxdamage1
       - libxdmcp6
       - libxshmfence1
-    organize:
-      # Expected at /X11/XErrorDB by the `gpu-2604` interface
-      usr/share/X11/XErrorDB: X11/XErrorDB
     prime:
       - usr/lib
       - usr/share/doc/*/copyright
       - usr/share/X11/locale
-      - X11
+      - usr/share/X11/XErrorDB
 
   wayland:
     # Wayland support (not much cost to having this)
@@ -251,13 +242,10 @@ parts:
         - libdrm-radeon1:i386
     override-prime: |
       if [ `arch` = "x86_64" ]; then craftctl default; fi
-    organize:
-      # Expected at /libdrm by the `gpu-2404` interface
-      usr/share/libdrm: libdrm
     prime:
       - usr/lib
       - usr/share/doc/*/copyright
-      - libdrm
+      - usr/share/libdrm
 
   va-i386:
     # Video Acceleration API
@@ -290,16 +278,13 @@ parts:
         sed -i 's@/usr/lib/[a-z0-9_-]\+/@@' ${CRAFT_PART_INSTALL}/usr/share/vulkan/*/*.json
       fi
       craftctl default
-    organize:
-      # Expected at /drirc.d by the `gpu-2404` interface
-      usr/share/drirc.d: drirc.d
     override-prime: |
       if [ `arch` = "x86_64" ]; then craftctl default; fi
     prime:
       - usr/lib
+      - usr/share/drirc.d
       - usr/share/vulkan
       - usr/share/doc/*/copyright
-      - drirc.d
 
   x11-i386:
     # X11 support (not much cost to having this)
@@ -408,7 +393,7 @@ parts:
       set -eux
       cd /snap/core26/current
       # Keep libdrm in to avoid potentially mixing versions with the base snap
-      find . -type f,l -not -name 'libdrm*' -exec rm -f ${CRAFT_PRIME}/{} \;
+      find . -type f,l -not -path '*libdrm*' -exec rm -f ${CRAFT_PRIME}/{} \;
       find ${CRAFT_PRIME} -empty -type d -delete
 
   file-list:
@@ -460,9 +445,6 @@ parts:
         cd ${CRAFT_PRIME}
         # Everything that is indeed primed
         find usr -type f,l
-
-        # The re-organized bits
-        find X11 -type f,l | awk '{ print "usr/share/" $0 }'
       ) \
       | grep --invert-match "${cleanup_patterns[@]}" \
       | sed 's/\(.so.[0-9]\+\)\([0-9\.]\+\)\?$/\1*/' \
