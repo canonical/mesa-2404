@@ -92,14 +92,16 @@ parts:
       - usr/share/libdrm
 
   va:
-    # Video Acceleration API
+    # Video Acceleration APIs
     #   o libva.so.2
+    #   o libvdpau.so.1
     plugin: nil
     stage-packages:
       - libva2
       - libva-drm2
       - libva-x11-2
       - libva-wayland2
+      - libvdpau1
     prime:
       - usr/lib
       - usr/share/doc/*/copyright
@@ -110,7 +112,6 @@ parts:
     stage-packages:
       - libgl1-mesa-dri
       - va-driver-all
-      - vdpau-driver-all
       - libvdpau-va-gl1
       - mesa-vulkan-drivers
       - libglx-mesa0
@@ -250,10 +251,12 @@ parts:
   va-i386:
     # Video Acceleration API
     #   o libva.so.2
+    #   o libvdpau.so.1
     plugin: nil
     stage-packages:
       - on amd64:
         - libva2:i386
+        - libvdpau1:i386
         - libva-drm2:i386
         - libva-x11-2:i386
         - libva-wayland2:i386
@@ -270,7 +273,6 @@ parts:
       - on amd64:
         - libgl1-mesa-dri:i386
         - va-driver-all:i386
-        - vdpau-driver-all:i386
         - mesa-vulkan-drivers:i386
         - libglx-mesa0:i386
     override-stage: |
