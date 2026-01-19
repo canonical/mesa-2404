@@ -36,8 +36,9 @@ jobs:
     - name: Test the snap
       if: ${{ matrix.platform == 'amd64' }}
       run: |
+        sudo snap install core26 --edge
         sudo snap install --dangerous ${{ steps.build-snap.outputs.snap-path }}
-        sudo snap install mir-test-tools --channel 24/stable
+        sudo snap install mir-test-tools --channel 24/edge/pr91
         sudo snap connect mir-test-tools:login-session-control
         sudo snap connect mir-test-tools:gpu-2604 mesa-2604
 
