@@ -110,7 +110,6 @@ parts:
     stage-packages:
       - libgl1-mesa-dri
       - va-driver-all
-      - vdpau-driver-all
       - libvdpau-va-gl1
       - mesa-vulkan-drivers
       - libglx-mesa0
@@ -270,7 +269,6 @@ parts:
       - on amd64:
         - libgl1-mesa-dri:i386
         - va-driver-all:i386
-        - vdpau-driver-all:i386
         - mesa-vulkan-drivers:i386
         - libglx-mesa0:i386
     override-stage: |
