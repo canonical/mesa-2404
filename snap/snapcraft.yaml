@@ -382,7 +382,7 @@ parts:
       cpu = 'i686'
       endian = 'little'
       EOF
-        meson setup build --cross-file=cross-i386.txt --prefix=/usr --libdir=/usr/lib/i386-linux-gnu
+        meson setup build ${CRAFT_PART_SRC} --cross-file=cross-i386.txt --prefix=/usr --libdir=/usr/lib/i386-linux-gnu
         meson compile -C build
         DESTDIR="${CRAFT_PART_INSTALL}" meson install -C build
       fi
