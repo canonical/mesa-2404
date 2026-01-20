@@ -68,6 +68,24 @@ parts:
     stage-packages:
       - libdrm2
       - libdrm-common
+      - libdrm-amdgpu1
+      - libdrm-nouveau2
+      - libdrm-radeon1
+      - on amd64:
+        - libdrm-intel1
+      - on arm64:
+        - libdrm-etnaviv1
+        - libdrm-freedreno1
+        - libdrm-intel1
+        - libdrm-tegra0
+      - on armhf:
+        - libdrm-etnaviv1
+        - libdrm-exynos1
+        - libdrm-freedreno1
+        - libdrm-omap1
+        - libdrm-tegra0
+      - on riscv64:
+        - libdrm-intel1
     organize:
       # Expected at /libdrm by the `gpu-2404` interface
       usr/share/libdrm: libdrm
@@ -227,6 +245,10 @@ parts:
       - on amd64:
         - libdrm2:i386
         - libdrm-common
+        - libdrm-amdgpu1:i386
+        - libdrm-intel1:i386
+        - libdrm-nouveau2:i386
+        - libdrm-radeon1:i386
     override-prime: |
       if [ `arch` = "x86_64" ]; then craftctl default; fi
     organize:
