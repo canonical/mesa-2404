@@ -15,8 +15,7 @@ ARCH_TRIPLETS=( @ARCH_TRIPLETS@ )
 # VDPAU_DRIVER_PATH only supports a single path, rely on LD_LIBRARY_PATH instead
 for arch in ${ARCH_TRIPLETS[@]}; do
   GBM_BACKENDS_PATH=${GBM_BACKENDS_PATH:+$GBM_BACKENDS_PATH:}${SELF}/lib/${arch}/gbm
-  LD_LIBRARY_PATH=${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}${SELF}/lib/${arch}:${SELF}/lib/${arch}/vdpau
-  LIBGL_DRIVERS_PATH=${LIBGL_DRIVERS_PATH:+$LIBGL_DRIVERS_PATH:}${SELF}/lib/${arch}/dri/
+  LD_LIBRARY_PATH=${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}${SELF}/lib/${arch}:${SELF}/lib/${arch}/dri:${SELF}/lib/${arch}/vdpau
   LIBVA_DRIVERS_PATH=${LIBVA_DRIVERS_PATH:+$LIBVA_DRIVERS_PATH:}${SELF}/lib/${arch}/dri/
 done
 __EGL_VENDOR_LIBRARY_DIRS=${__EGL_VENDOR_LIBRARY_DIRS:+$__EGL_VENDOR_LIBRARY_DIRS:}${SELF}/share/glvnd/egl_vendor.d
@@ -64,7 +63,6 @@ fi
 
 export GBM_BACKENDS_PATH
 export LD_LIBRARY_PATH
-export LIBGL_DRIVERS_PATH
 if [ "${__NV_PRIME_RENDER_OFFLOAD:-}" != 1 ]; then
   # Prevent picking VA-API (Intel/AMD) over NVIDIA VDPAU
   # https://download.nvidia.com/XFree86/Linux-x86_64/510.54/README/primerenderoffload.html#configureapplications
