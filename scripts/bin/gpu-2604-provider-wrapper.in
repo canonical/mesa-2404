@@ -9,21 +9,19 @@ if [ -f ${COMPONENT_PATH}/@COMPONENT_SENTINEL@ ]; then
   . ${COMPONENT_PATH}/@COMPONENT_MANGLER@
 fi
 
-SELF_BASE="$( cd -- "$(dirname "$0")/.." ; pwd -P )"
-SELF=${SELF_BASE}/usr
+SELF="$( cd -- "$(dirname "$0")/.." ; pwd -P )/usr"
 ARCH_TRIPLETS=( @ARCH_TRIPLETS@ )
 
 # VDPAU_DRIVER_PATH only supports a single path, rely on LD_LIBRARY_PATH instead
 for arch in ${ARCH_TRIPLETS[@]}; do
   GBM_BACKENDS_PATH=${GBM_BACKENDS_PATH:+$GBM_BACKENDS_PATH:}${SELF}/lib/${arch}/gbm
-  LD_LIBRARY_PATH=${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}${SELF}/lib/${arch}:${SELF}/lib/${arch}/vdpau
-  LIBGL_DRIVERS_PATH=${LIBGL_DRIVERS_PATH:+$LIBGL_DRIVERS_PATH:}${SELF}/lib/${arch}/dri/
-  LIBVA_DRIVERS_PATH=${LIBVA_DRIVERS_PATH:+$LIBVA_DRIVERS_PATH:}${SELF}/lib/${arch}/dri/
+  LD_LIBRARY_PATH=${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}${SELF}/lib/${arch}:${SELF}/lib/${arch}/dri:${SELF}/lib/${arch}/vdpau
+  LIBVA_DRIVERS_PATH=${LIBVA_DRIVERS_PATH:+$LIBVA_DRIVERS_PATH:}${SELF}/lib/${arch}/dri
 done
 __EGL_VENDOR_LIBRARY_DIRS=${__EGL_VENDOR_LIBRARY_DIRS:+$__EGL_VENDOR_LIBRARY_DIRS:}${SELF}/share/glvnd/egl_vendor.d
 __EGL_EXTERNAL_PLATFORM_CONFIG_DIRS=${__EGL_EXTERNAL_PLATFORM_CONFIG_DIRS:+$__EGL_EXTERNAL_PLATFORM_CONFIG_DIRS:}${SELF}/share/egl/egl_external_platform.d
-DRIRC_CONFIGDIR=$( cd -- "$(dirname "$0")/../drirc.d" ; pwd -P )
-VK_LAYER_PATH=${VK_LAYER_PATH:+$VK_LAYER_PATH:}${SELF}/share/vulkan/implicit_layer.d/:${SELF}/share/vulkan/explicit_layer.d/
+DRIRC_CONFIGDIR=${SELF}/share/drirc.d
+VK_LAYER_PATH=${VK_LAYER_PATH:+$VK_LAYER_PATH:}${SELF}/share/vulkan/implicit_layer.d:${SELF}/share/vulkan/explicit_layer.d
 XDG_DATA_DIRS=${XDG_DATA_DIRS:+$XDG_DATA_DIRS:}${SELF}/share
 XLOCALEDIR=${SELF}/share/X11/locale
 
@@ -65,7 +63,6 @@ fi
 
 export GBM_BACKENDS_PATH
 export LD_LIBRARY_PATH
-export LIBGL_DRIVERS_PATH
 if [ "${__NV_PRIME_RENDER_OFFLOAD:-}" != 1 ]; then
   # Prevent picking VA-API (Intel/AMD) over NVIDIA VDPAU
   # https://download.nvidia.com/XFree86/Linux-x86_64/510.54/README/primerenderoffload.html#configureapplications
@@ -80,6 +77,6 @@ export XLOCALEDIR
 
 # Make use of the https://gitlab.freedesktop.org/mesa/libdrm/-/merge_requests/273 patch
 # in libdrm to find the amdgpu.ids file in other places
-export AMDGPU_ASIC_ID_TABLE_PATHS=${AMDGPU_ASIC_ID_TABLE_PATHS:+$AMDGPU_ASIC_ID_TABLE_PATHS:}${SELF_BASE}/libdrm
+export AMDGPU_ASIC_ID_TABLE_PATHS=${AMDGPU_ASIC_ID_TABLE_PATHS:+$AMDGPU_ASIC_ID_TABLE_PATHS:}${SELF}/share/libdrm
 
 exec "$@"
