@@ -214,6 +214,23 @@ parts:
       - usr/lib/**/*.so.*
       - usr/share/egl/egl_external_platform.d
 
+  nvidia-vaapi:
+    source: git://git.launchpad.net/ubuntu/+source/nvidia-vaapi-driver
+    source-branch: applied/ubuntu/noble
+    source-depth: 1
+    plugin: meson
+    meson-parameters:
+      - --prefix=/usr
+    build-packages:
+      - meson
+      - pkgconf
+      - libva-dev
+      - libegl-dev
+      - libdrm-dev
+    prime:
+      - usr/lib/**/dri/nvidia_drv_video.so
+      - usr/share/doc/*/copyright
+
   apis-i386:
       # This provides the essential APIs
       #   o libGL.so.1
@@ -352,6 +369,50 @@ parts:
     prime:
       - usr/lib
 
+  nvidia-vaapi-i386:
+    source: git://git.launchpad.net/ubuntu/+source/nvidia-vaapi-driver
+    source-branch: applied/ubuntu/noble
+    source-depth: 1
+    plugin: meson
+    meson-parameters:
+      - --prefix=/usr
+      - --libdir=/usr/lib/i386-linux-gnu
+    build-packages:
+      - on amd64:
+        - meson
+        - pkgconf:i386
+        - libva-dev:i386
+        - libegl-dev:i386
+        - libdrm-dev:i386
+        - gcc-multilib
+    override-build: |
+      if [ `arch` = "x86_64" ]; then
+        cat > cross-i386.txt << EOF
+      [binaries]
+      c = 'gcc'
+      ar = 'ar'
+      strip = 'strip'
+      pkgconfig = 'pkg-config'
+      
+      [properties]
+      c_args = ['-m32']
+      c_link_args = ['-m32']
+      
+      [host_machine]
+      system = 'linux'
+      cpu_family = 'x86'
+      cpu = 'i686'
+      endian = 'little'
+      EOF
+        meson setup build ${CRAFT_PART_SRC} --cross-file=cross-i386.txt --prefix=/usr --libdir=/usr/lib/i386-linux-gnu
+        meson compile -C build
+        DESTDIR="${CRAFT_PART_INSTALL}" meson install -C build
+      fi
+    override-prime: |
+      if [ `arch` = "x86_64" ]; then craftctl default; fi
+    prime:
+      - usr/lib
+
   # These were at some point part of mesa-2404 and its cleanup lists,
   # but are no longer dependencies.
   # To avoid refreshes breaking consumer snaps, we need to hold on to them.
@@ -389,6 +450,7 @@ parts:
     - drm
     - dri
     - nvidia-egl-ext
+    - nvidia-vaapi
     - va
     - x11
     - wayland
@@ -396,6 +458,7 @@ parts:
     - drm-i386
     - dri-i386
     - nvidia-egl-ext-i386
+    - nvidia-vaapi-i386
     - va-i386
     - x11-i386
     - wayland-i386
