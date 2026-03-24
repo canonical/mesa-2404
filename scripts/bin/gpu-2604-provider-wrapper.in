@@ -2,14 +2,14 @@
 set -euo pipefail
 
 # The second content element is mounted at "${content_target}-2"
-COMPONENT_PATH="$( cd -- "$(dirname "$0")"/.. ; pwd -P )-2"
+COMPONENT_PATH="$( cd -- "$(dirname "$0")"/.. ; pwd -P )/kernel-gpu-2604"
 
 # Use the component mangler to bootstrap the environment
 if [ -f ${COMPONENT_PATH}/@COMPONENT_SENTINEL@ ]; then
   . ${COMPONENT_PATH}/@COMPONENT_MANGLER@
 fi
 
-SELF="$( cd -- "$(dirname "$0")/.." ; pwd -P )/usr"
+SELF="$( cd -- "$(dirname "$0")/.." ; pwd -P )/mesa-2604/usr"
 ARCH_TRIPLETS=( @ARCH_TRIPLETS@ )
 
 # VDPAU_DRIVER_PATH only supports a single path, rely on LD_LIBRARY_PATH instead

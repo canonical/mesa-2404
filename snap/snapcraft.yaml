@@ -427,6 +427,13 @@ parts:
       | sort --unique \
       >> ${CRAFT_PRIME}/snap/${CRAFT_ARCH_BUILD_FOR}.list
 
+  organize:
+    after: [file-list]
+    plugin: nil
+    override-prime: |
+      mkdir --parents ${CRAFT_PRIME}/{mesa-2604,kernel-gpu-2604}
+      mv ${CRAFT_PRIME}/usr ${CRAFT_PRIME}/mesa-2604/
+
   scripts:
     after: [file-list]
     plugin: nil
@@ -460,9 +467,11 @@ plugs:
 slots:
   gpu-2604:
     interface: content
-    read:
-    - $SNAP
-    - $SNAP_DATA/kernel-gpu-2604
+    source:
+      read:
+      - $SNAP/bin
+      - $SNAP/mesa-2604
+      - $SNAP_DATA/kernel-gpu-2604
 
 environment:
   COMPONENT_INTERFACE: kernel-gpu-2604
