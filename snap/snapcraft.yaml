@@ -469,6 +469,13 @@ parts:
       | sort --unique \
       >> ${CRAFT_PRIME}/snap/${CRAFT_ARCH_BUILD_FOR}.list
 
+  organize:
+    after: [file-list]
+    plugin: nil
+    override-prime: |
+      mkdir --parents ${CRAFT_PRIME}/{mesa-2404,kernel-gpu-2404}
+      mv ${CRAFT_PRIME}/usr ${CRAFT_PRIME}/mesa-2404/
+
   scripts:
     after: [file-list]
     plugin: nil
@@ -502,9 +509,14 @@ plugs:
 slots:
   gpu-2404:
     interface: content
-    read:
-    - $SNAP
-    - $SNAP_DATA/kernel-gpu-2404
+    source:
+      read:
+      - $SNAP/bin
+      - $SNAP/drirc.d
+      - $SNAP/libdrm
+      - $SNAP/mesa-2404
+      - $SNAP/X11
+      - $SNAP_DATA/kernel-gpu-2404
 
 environment:
   COMPONENT_INTERFACE: kernel-gpu-2404
