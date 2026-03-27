@@ -6,9 +6,13 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
 
+permissions: {}
+
 jobs:
   Snap:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     timeout-minutes: 45
 
@@ -19,13 +23,14 @@ jobs:
 
     steps:
     - name: Check out code
-      uses: actions/checkout@v6
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
         fetch-depth: 0  # needed for version determination
+        persist-credentials: false
 
     - name: Build and publish the snap
       id: build-snap
-      uses: canonical/actions/build-snap@release
+      uses: canonical/actions/build-snap@bd56f0f0934af9edbbd49378645727d7ef7a4571 # release @ 2025.03.27
       with:
         architecture: ${{ matrix.platform }}
         snapcraft-token: ${{ secrets.SNAPCRAFT_TOKEN }}
@@ -35,8 +40,10 @@ jobs:
 
     - name: Test the snap
       if: ${{ matrix.platform == 'amd64' }}
+      env:
+        SNAP_PATH: ${{ steps.build-snap.outputs.snap-path }}
       run: |
-        sudo snap install --dangerous ${{ steps.build-snap.outputs.snap-path }}
+        sudo snap install --dangerous ${SNAP_PATH}
         sudo snap install mir-test-tools --channel 24/stable
         sudo snap connect mir-test-tools:login-session-control
         sudo snap connect mir-test-tools:gpu-2404 mesa-2404
@@ -48,6 +55,6 @@ jobs:
 
     - if: ${{ failure() && runner.debug }}
       name: Set up tmate session (restart with debug logging to activate)
-      uses: mxschmitt/action-tmate@v3
+      uses: mxschmitt/action-tmate@fb436d6daa7781a8ac1fe5474f1e0cb2664b6123 # v3.21
       with:
         limit-access-to-actor: true
