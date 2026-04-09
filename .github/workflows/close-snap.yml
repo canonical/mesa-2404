@@ -4,15 +4,19 @@ on:
   pull_request:
     types: [closed]
 
+permissions: {}
+
 jobs:
   close:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     timeout-minutes: 5
 
     steps:
     - name: Close obsolete channels
-      uses: canonical/actions/close-snap@release
+      uses: canonical/actions/close-snap@bd56f0f0934af9edbbd49378645727d7ef7a4571 # release @ 2025.03.27
       continue-on-error: true
       with:
         channel: edge/pr${{ github.event.number }}
