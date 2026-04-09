@@ -2,14 +2,14 @@
 set -euo pipefail
 
 # The second content element is mounted at "${content_target}-2"
-COMPONENT_PATH="$( cd -- "$(dirname "$0")"/.. ; pwd -P )-2"
+COMPONENT_PATH="$( cd -- "$(dirname "$0")"/.. ; pwd -P )/kernel-gpu-2404"
 
 # Use the component mangler to bootstrap the environment
 if [ -f ${COMPONENT_PATH}/@COMPONENT_SENTINEL@ ]; then
   . ${COMPONENT_PATH}/@COMPONENT_MANGLER@
 fi
 
-SELF_BASE="$( cd -- "$(dirname "$0")/.." ; pwd -P )"
+SELF_BASE="$( cd -- "$(dirname "$0")/.." ; pwd -P )/mesa-2404"
 SELF=${SELF_BASE}/usr
 ARCH_TRIPLETS=( @ARCH_TRIPLETS@ )
 
