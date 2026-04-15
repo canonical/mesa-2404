@@ -420,6 +420,7 @@ parts:
       # Avoid new userspace drivers slipping into the consumer snaps,
       # using wildcards to support multi-arch snaps
       cat <<EOF > ${CRAFT_PRIME}/snap/${CRAFT_ARCH_BUILD_FOR}.list
+      # Non-strict globs
       usr/lib/*/dri/*
       usr/lib/*/libVkLayer_*.so
       usr/lib/*/libdrm_*.so*
@@ -432,24 +433,13 @@ parts:
       usr/share/glvnd/egl_vendor.d/*
       usr/share/libdrm/*
       usr/share/vulkan/*.d/*
+      # Content
       EOF
 
       # Elements that should be pruned from the list
       cleanup_patterns=(
         -e debconf                                    # Cruft pulled in through python3 dependency (dropped upstream)
         -e dpkg-reconfigure                           # https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1061658
-        -e ^usr/lib/.*/dri/                           # Individual DRI and LibVA drivers
-        -e ^usr/lib/.*/libVkLayer_.*.so               # Vulkan layer libraries
-        -e ^usr/lib/.*/libdrm_.*.so*                  # libdrm userspace libraries
-        -e ^usr/lib/.*/libgallium-.*.so               # Mesa's shared infrastracture libraries
-        -e ^usr/lib/.*/libvulkan_.*.so                # Individual Vulkan drivers
-        -e ^usr/lib/.*/vdpau/                         # Individual VDPAU drivers
-        -e ^usr/share/X11/locale/*                    # X11 locale files
-        -e ^usr/share/drirc.d/.*                      # Mesa quirk files
-        -e ^usr/share/egl/egl_external_platform.d/.*  # EGL ICD files
-        -e ^usr/share/glvnd/egl_vendor.d/*            # glvnd ICD files
-        -e ^usr/share/libdrm/.*                       # libdrm support files
-        -e ^usr/share/vulkan/.*.d/*                   # Vulkan ICD files
       )
 
       (
@@ -462,7 +452,7 @@ parts:
         find usr -type f,l
 
         # The re-organized bits
-        find X11 -type f,l | awk '{ print "usr/share/" $0 }'
+        find drirc.d libdrm X11 -type f,l | awk '{ print "usr/share/" $0 }'
       ) \
       | grep --invert-match "${cleanup_patterns[@]}" \
       | sed 's/\(.so.[0-9]\+\)\([0-9\.]\+\)\?$/\1*/' \
