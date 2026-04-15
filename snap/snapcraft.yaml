@@ -452,7 +452,7 @@ parts:
         find usr -type f,l
 
         # The re-organized bits
-        find X11 -type f,l | awk '{ print "usr/share/" $0 }'
+        find drirc.d libdrm X11 -type f,l | awk '{ print "usr/share/" $0 }'
       ) \
       | grep --invert-match "${cleanup_patterns[@]}" \
       | sed 's/\(.so.[0-9]\+\)\([0-9\.]\+\)\?$/\1*/' \
