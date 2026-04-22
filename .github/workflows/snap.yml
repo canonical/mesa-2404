@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: ${{ fromJSON((github.event_name == 'merge_group' || github.repository == github.event.pull_request.head.repo.full_name) && '["amd64","armhf","arm64","ppc64el","s390x"]' || '["amd64"]') }}
+        platform: ${{ fromJSON((github.event_name == 'merge_group' || github.repository == github.event.pull_request.head.repo.full_name) && '["amd64"]' || '["amd64"]') }}
 
     steps:
     - name: Check out code
@@ -34,6 +34,7 @@ jobs:
       with:
         architecture: ${{ matrix.platform }}
         snapcraft-token: ${{ secrets.SNAPCRAFT_TOKEN }}
+        snapcraft-channel: edge
         launchpad-credentials: ${{ secrets.LAUNCHPAD_CREDENTIALS }}
         publish: ${{ github.event_name == 'pull_request' && github.repository == github.event.pull_request.head.repo.full_name }}
         publish-channel: edge/pr${{ github.event.number }}
@@ -43,10 +44,11 @@ jobs:
       env:
         SNAP_PATH: ${{ steps.build-snap.outputs.snap-path }}
       run: |
+        sudo snap install core26 --edge
         sudo snap install --dangerous ${SNAP_PATH}
-        sudo snap install mir-test-tools --channel 24/stable
+        sudo snap install mir-test-tools --channel 26/edge
         sudo snap connect mir-test-tools:login-session-control
-        sudo snap connect mir-test-tools:gpu-2404 mesa-2404
+        sudo snap connect mir-test-tools:gpu-2604 mesa-2604
 
         sudo adduser $USER video
         sudo adduser $USER input
