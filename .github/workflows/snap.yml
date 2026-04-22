@@ -55,6 +55,6 @@ jobs:
 
     - if: ${{ failure() && runner.debug }}
       name: Set up tmate session (restart with debug logging to activate)
-      uses: mxschmitt/action-tmate@fb436d6daa7781a8ac1fe5474f1e0cb2664b6123 # v3.21
+      uses: mxschmitt/action-tmate@c606f8612a802e46b3742322514c09fbc8c4afee # v3.21
       with:
         limit-access-to-actor: true
