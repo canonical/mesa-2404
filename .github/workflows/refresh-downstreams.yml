@@ -29,7 +29,7 @@ jobs:
       with:
         # so that we know what to cherry-pick from
         fetch-depth: 2
-        persist-credentials: false
+        persist-credentials: true
 
     - name: Update `${{ matrix.ref }}`
       env:
