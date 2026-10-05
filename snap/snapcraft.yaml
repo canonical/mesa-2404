@@ -363,6 +363,7 @@ parts:
       - libglapi-mesa
       - libllvm17t64
       - libllvm19
+      - libpciaccess0
     prime:
       - usr/lib
       - usr/share/doc/*/copyright
