@@ -378,7 +378,6 @@ parts:
         - libllvm17t64:i386
         - libllvm19:i386
         - libpciaccess0:i386
-        - libpciaccess0:i386
     override-prime: |
       if [ `arch` = "x86_64" ]; then craftctl default; fi
     prime:
