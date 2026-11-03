@@ -155,6 +155,12 @@ parts:
     organize:
       # Expected at /X11/XErrorDB by the `gpu-2404` interface
       usr/share/X11/XErrorDB: X11/XErrorDB
+    override-prime: |
+      craftctl default
+      # Compose files include other files by absolute path; use %S, which
+      # honours XLOCALEDIR, so they resolve wherever the snap is mounted
+      sed -i -E '/^[[:space:]]*include[[:space:]]/ s|/usr/share/X11/locale|%S|g' \
+        "$CRAFT_PRIME"/usr/share/X11/locale/*/Compose
     prime:
       - usr/lib
       - usr/share/doc/*/copyright
